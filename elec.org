@@ -1,0 +1,228 @@
+#+TITLE: Electronic Projects Helper
+#+AUTHOR: Lorenzo Fluckiger
+
+* Electronic Sextant Helper
+** Idea
+An electronic helper that would makes sight taking fun and push people to
+train more this skill.
+** Usage
+A small embedded system that you can mount on a sextant or keep close by
+when taking sights. One easily accessible button will record the accurate
+time when it is pressed. Then a dialog will show up to let the user enter
+the measured altitude with simple keypad. Each time the microcontroller
+will compute directly the azimut and intercept from a pre-entered dead
+reackoning position.  Theses steps for sight taking can be repeated
+multiple time, potentially creating best curve fitting for the
+measurements.
+** Details
+ - The project would use a very accurate clock, potentially radio or GPS
+   controlled. The unit would thus be a wonderfull time keeping tool too.
+ - Addition of a cheap GPS would supress the entering dead reackoning
+   point. The system could be use as a wonderfull game: alone or with
+   friend, the unit would tell you instantly the accuracy of your sight!
+ - Ideally the system would allow to export the sights to a personal
+   computer.
+ - The system can be further extended providing a range of astronomical
+   function and combined with a mini portable weather station.
+** Why I finally will not do it -> smartphone
+ - The all user interface could be tricky using a simple microcontroller
+   and small LCD. In addition, the export function is annoying to realize.
+ - The exact same sight helper and game would be better realized with a
+   smartphone! In this scenario, the user interface can be much more
+   polished, and the project is reduced to software only.
+ - This can be potentially become a nice $3 app (compared to the $30 - $60
+   apps for atro navigation), focused fist on the sight taking exercise,
+   and then evolving to a full nav astro application.
+ - Everybody has a smartphone, the GPS is already in there, thus the
+   system could be distributed to a much wider audience.
+ - One sticky point would be the smartphone clock accuracy. Ideally it
+   should use some NTP system (not on the iPhone apparently), or a least
+   let the user to synchronize the clock accurately manually.
+* Project weather station
+ - The idea is to create a mini weather station that would be
+   incrementally improved with new sensors and better user interface.
+ - This project, (descope for the sextant helper but with more sensors)
+   would be a great introduction to multiple aspect of electronic hardware
+   and microcontrollers programmation, and is very well suited to
+   incremental development.
+ - This project comes from a real lack of reasonably priced barograph on
+   the market + availibility of cheap and cool weather sensors.
+ - The other driver is this envy of a really accurate clock, that at least
+   tells you what its potential offset is after lack of
+   synchronization. Ideally the clock would not be syncrhonized by GPS
+   (but by radio), since it would be used in the impossible scenario of a
+   GPS contellation unvaibility (requirement derived from the sextant
+   helper;-)
+** Iteration 1 - Familiarization with Arduino
+Learn how to use an Arduino board
+Program some floating point tests to measure the performance
+** Iteration 2 - Connect an LCD and keypad
+Need to find an matrix keypad controller to avoid using all the Arduino
+pins
+Make sure that the LCD can also be driven with I2C
+Desired display: Blue - 4x20 lines
+Future: program library to use left side of display as a soft meny
+(mapped to the A-B-C-D keys)
+** Iteration 3 - Integrate a temperature compensated real time clock
+- [[http://www.maxim-ic.com/products/rtc/real-time-clocks.cfm][Maxim Real Time Clocks]]
+- [[http://www.arduino.cc/playground/Main/InterfacingWithHardware#time][Arduino Time Playground]]
+- [[http://tronixstuff.wordpress.com/2010/05/28/lets-make-an-arduino-real-time-clock-shield/][Arduino RTC home made shied]]
+** Iteration 4 - Integrate a absolute barometric pressure sensor (SPI)
+** Iteration 5 - Integrate a temperature + humidity sensor
+** Iteration 6 - Integrate a wireless receiver for LaCrosse sensors
+*** Some links from one project: [[http://mysite.verizon.net/kajordahl/weather.html][Arduino weather station]]
+*** 433MHz RXB6 receiver: [[http://www.freetronics.com/blogs/news/1669762-433mhz-receiver-shield-rx-module-updated][433MHz Receiver Shield RX module updated]]
+*** [[http://aurelwireless.com/rf-wireless-modules/radiofrequency-receivers.asp][RF Receivers]]
+** Iteration 7 - Integrate a Radio Controlled Clock synchronizer
+** Iteration 8 - Store data log to SD card
+* Project digital barograph
+ - This is a spin-off of the weather station.
+ - The more accutely missing data in typical consumer weather station is
+ atmospheric pressure: it is often not really accurate, and certainly lack
+ of historical data. A quick search does not show there is much on the
+ marine market (but need to refine this)
+** Concepts
+ - Pressure will be recorded on at least hourly basis with an accurate
+   absolute pressure sensor.
+ - Potentially, temperature (local, external would require wireless
+   transmission, see weather station project) and humidity will be
+   recorded too
+ - The measurements will be tied to an accurate real time clock
+ - Historical data of at least five days / every 3h should be stored.
+ - A nice extension will be storing all historical data to sim card and
+   deliver a personal computer application to read it.
+ - A graphical display will show daily / weekly graphs of the pressure
+ - In addition, the system should allow to "browse" the data to get the
+   exact numerical value at any timestamp
+ - The clock will display GMT + local time and have several alarms
+** Interesting similar products
+*** [[http://www.bohlken.net/bg/bg1512_en.htm][High Precision Marine Barograph BG1512]]
+ - 300 Euro
+ - Graphical display (line)
+ - Send NMEA data (4800bps)
+*** [[http://www.digitalbarograph.com/][DBX1 for ASI (Aquatex Scientific Instruments)]]
+ - $370
+ - Nicely enclosed
+ - Graphical bar display
+ - Excellent user manual
+ - 1 day and 5 day history
+** Size or data samples
+Max pixel in width = 128
+Probably should have 2 pixel per bar, but this is to evaluate
+Desire 3 displays: 5 days - 1 day (~36h better) - 3 jours
+Pressure can be coded on a int (2 bytes)
+60 measures x 2 bytes x 3 screen = 360 bytes
+-> already a good part of the eeprom + good chunk of RAM is we want to display fast
+*** Another option:
+ - 1 sample every 3h x 7 days -> 56 points
+ - 1 sample every 1h x 36 h -> 36 points
+ - 1 sample every 10min x 
+| step (min) | period | nb samples | comment |
+|------------+--------+------------+---------|
+|          6 |      3 |         30 |         |
+|         10 |      3 |         18 |         |
+|          6 |      6 |         60 |         |
+|         20 |     24 |         72 | 1 day   |
+|         30 |     24 |         48 | 1 day   |
+|         30 |     30 |         60 | 1 day + |
+|         30 |     36 |         72 | 1.5 day |
+|         60 |     36 |         36 | 1.5 day |
+|         90 |    120 |         80 | 5 days  |
+|        120 |    120 |         60 | 5 days  |
+|        180 |    168 |         56 | 7 days  |
+#+TBLFM: $3=60*$2/$1  
+*** Better solution
+We in fact need at least 5 bytes for each data sample:
+- 2 for pressure
+- 2 for 2x temperature reading (coding in Farenheit seems a good idea!)
+- 1 for humidity
+It is much easier if each graph contains the same number of points
+| # samples | Every | '= Min' | Duration (h) | Comment                           |
+|-----------+-------+---------+--------------+-----------------------------------|
+|        48 | 3h    |     180 |          144 | Show *6 days*, enough to notice a |
+|           |       |         |              | longer term tendency              |
+|        48 | 1h    |      60 |           48 | Show *2 full days*, the default   |
+|           |       |         |              | screen showing the tendency       |
+|        48 | 15min |      15 |           12 | Show *12h* with a resolution      |
+|           |       |         |              | allowing to detect a tornado      |
+#+TBLFM: $3=Min::$4=($1*$3)/60
+The 3x48 samples above generate:
+- 144 samples for the 3 buffers
+- 144x5 = 720 bytes in EEPROM for storage
+- Need at least 6 more pointers for the ring buffer [(last + current) x 3]
+- graphs 96 pixel wide, leaving room on the side for scale
+Savings if we do not overlap the buffers (there is redundancy in the data):
+- 2 days buffer -> -12 samples (12h from the 15min buffer)
+- 6 days buffer -> -16 samples (48/3=16 from the 1h buffer)
+-> total of 28 samples -> ~20% memory saving (or 20% longer time span)
+=> for a first implementation this is not really interesting and would 
+complicate the matter quite a bit
+* Interesting products
+** Terminal adapters for the Arduino
+*** [[http://store.gravitech.us/teadforarna.html][Bed for the Nano]]
+*** [[http://www.adafruit.com/index.php?main_page=product_info&cPath=17_21&products_id=196][Wings out for the Uno]]
+** Display (character, graphic, LCD, OLED, etc.)
+*** [[http://www.arduino.cc/playground/Code/LCDAPI][Entry point on the Arduino playground]]
+*** I2C LCD control
+http://arduino.cc/playground/Code/LCDi2c
+*** Newhaven Diplay have a serie of serial LCD (~$25) + numerous other LCD types (character and graphics): [[http://www.newhavendisplay.com/index.php?main_page=index&cPath=253][Newhaven LCDs]]
+ - documentation looks good
+ - 38mA / 5V + 20mA backlit ... This seems a lot?
+ - seems to be supported by Arduino libraries
+*** Graphical LCD from Adafruit
+**** [[http://www.adafruit.com/index.php?main_page=product_info&cPath=37&products_id=250][Momochrome Graphic ST7565 LCD 128x64 ($15)]]
+ - very low power 400uA typical, 30uA standby @ 3.3V
+ - -> not so sure about that anymore: backlight probably requires 120mA
+ - require 1K RAM buffer (ATmega328 min.) !
+ - 1K is a lot, cannot use the display together with a SD card module for
+   example
+ - This 1K buffer is in fact only to be able to READ pixels, if no read is
+   needed, then we probably can rewrite the code to get rid of the buffer.
+ - complete technical sheet
+**** [[http://www.adafruit.com/index.php?main_page=product_info&cPath=37&products_id=326][Monochrome 128x64 OLED ($20)]]
+ - require 1K RAM buffer again
+ - library for Arduino available
+ - 20mA @ 3.3V
+**** [[http://www.adafruit.com/index.php?main_page=product_info&cPath=51&products_id=330][2.8" 320x240 TFT with Touchscreen + accelerometer and micro SD ($70)]]
+**** [[http://www.adafruit.com/index.php?main_page=product_info&cPath=37&products_id=292][I2C / SPI character LCD backpack ($10)]]
+ - tutorial + arduino library
+*** [[http://www.4dsystems.com.au/products.php][4D System produces a range of LCD+OLED display with integrated controller]]
+*** [[http://www.robotshop.com/netmedia-4x20-rohs-lcd-blue.html][4x20 + 2 outputs ($55)]]
+*** [[http://letsmakerobots.com/node/4240][Drive a standard HD44780 LCD using a PCF8574 and I2C]]
+** LCDs + keypad
+*** [[http://www.parallax.com/StoreSearchResults/tabid/768/txtSearch/30058/List/0/SortField/4/ProductID/55/Default.aspx][Nice White on Blue Parallax 4x20 + 5x5 keypad interface ($100)]]
+(end of life product!)
+*** [[http://www.robotshop.com/netmedia-lcdx-module-cpu-and-lcd-1.html][Black on white 4x20 + 4x4 matrix keypad input ($80)]]
+*** [[http://www.web4robot.com/LCDCtrl.html][Serial LCD and Keypad controller from web4robot]]
+*** [[http://www.robotshop.com/dfrobot-lcd-keypad-shield-arduino-1.html][Shield for Arduino with LCD + 5 buttons keypad ($24)]]
+*** [[http://www.robotshop.com/cytron-human-interface-control-panel-1.html][2x16 + 4 buttons ($32)]]
+** Easy to use LCDs
+*** [[http://www.robotshop.com/dfrobot-i2c-twi-lcd1602-module.html][DFRobot I2C 2x16 white on blue Arduino compatible (2 pins) ($22)]]
+*** [[http://www.robotshop.com/4d-systems-1-7-oled-display-shield-arduino.html][OLED Display Arduino Shield with joystick button ($79)]]
+*** [[http://www.4dsystems.com.au/prod.php?id=127][Color OLED Arduino shield from 4D systems + 5 way joystick ($70)]]
+LCD version 1.44" is $20 cheaper
+*** [[http://www.liquidware.com/shop/show/TS/TouchShield+Stealth][Dream hardware ThouchShield (~140)]]
+** Keypads
+*** [[http://www.cutedigi.com/product_info.php?products_id=4334&osCsid=c5405eea85ba48e6dbf66ded49a8aa45][Soft 16 keys numerical keypad ($13)]]
+No documentation of reference so far
+*** [[http://www.electrojoystick.com/proddetail.php?prod=EK005][12 keys serial keypad kit ($18)]]
+*** [[http://www.robotshop.com/sfe-keypad-12-button.html][12 buttons numerical keypad ($4)]]
+** Humidity and temperature sensor
+- [[http://shop.moderndevice.com/products/humidity-and-temperature-sensor][ModernDevice]]
+- [[http://www.liquidware.com/shop/show/SEN-SHT/Humidity+and+Temperature+Sensor][LiquidWare]]
+- [[http://www.parallax.com/Store/Sensors/TemperatureHumidity/tabid/174/CategoryID/49/List/0/SortField/0/Level/a/ProductID/94/Default.aspx][Parallax]]
+(36) Sensirion
+** Pressure
+*** Absolute pressure sensor (SCP 1000)
+- [[http://www.sparkfun.com/products/8161][SCP1000 Breakout board ($35)]]
+attachements holes in the board
+solder connections
+discontinued!
+- [[http://www.sparkfun.com/products/9694][BMP085 Breakout board ($20)]]
+looks as good as above but cheaper
+better manufacturer doc
+- [[http://www.parallax.com/StoreSearchResults/tabid/768/txtSearch/27928/List/0/SortField/4/ProductID/591/Default.aspx][SPC 1000 Breakout board ($30)]]
+pin connectors
+* Notes
+** Arduino Power Requirements
+   [[http://interface.khm.de/index.php/lab/experiments/sleep_watchdog_battery/][Arduino Sleep_Watchdog_Battery]]

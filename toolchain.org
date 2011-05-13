@@ -1,0 +1,149 @@
+* Cygwin based install
+This method is finally not satisfactory:
+1) I did not succeed to install AVR Dude
+2) Cygwin seems to be very slow
+** Install Cygwin and at least the following packages:
+- gcc
+- automake + autoconf
+- bison
+- min-gcc (~gcc-3)
+- GMP
+- MPFR
+- cmake
+
+** Install binutils for AVR
+- Download from [[http://www.gnu.org/software/binutils/][GNU binutils]]
+#+BEGIN_EXAMPLE
+cd /usr/extra/src
+tar xvzf ~/wf/Downloads/binutils-2.21.tar.gz
+cd ..
+mkdir -p build/binutils221-cygwin
+cd build/binutils221-cygwin
+../../src/binutils-2.21/configure --prefix=/usr/extra --target=avr \
+  --disable-nls -enable-doc
+make 2>&1 | tee build.log
+make install
+#+END_EXAMPLE
+
+** Install GCC for AVR
+- Download from [[http://www.gnu.org/software/gcc/][GNU gcc]]
+#+BEGIN_EXAMPLE
+cd /usr/extra/src
+tar xvzf ~/wf/Downloads/gcc-core-4.4.6.tar.gz
+tar xvzf ~/wf/Downloads/gcc-g++-4.4.6.tar.gz
+cd ../build
+mkdir gcc446-cygwin
+cd gcc446-cygwin
+../../src/gcc-4.4.6/configure --prefix=/usr/extra --target=avr --enable-languages=c,c++ \
+  --with-dwarf2 --disable-nls --disable-libssp \
+  --enable-win32-registry=WinAVR-44 --enable-doc
+make 2>&1 | tee build.log
+make install
+#+END_EXAMPLE
+
+** Install avr-libc
+- Download from [[http://www.nongnu.org/avr-libc/][non GNU avr-libc]]
+#+BEGIN_EXAMPLE
+cd /usr/extra/man
+bunzip2.exe ~/wf/Downloads/avr-libc-manpages-1.7.1.tar.bz2
+tar xvf ~/wf/Downloads/avr-libc-manpages-1.7.1.tar
+cd /usr/extra/src
+bunzip2 ~/wf/Downloads/avr-libc-1.7.1.tar.bz2
+tar xvf ~/wf/Downloads/avr-libc-1.7.1.tar
+cd avr-libc-1.7.1
+./configure --host=avr --prefix=/usr/extra
+make
+#+END_EXAMPLE
+** Install avrdude
+- Download from 
+#+BEGIN_EXAMPLE
+cd /usr/extra/src
+tar xvzf ~/wf/Downloads/avrdude-5.10.tar.gz
+cd avrdude-5.10
+CC=gcc-3 ./configure --prefix=/usr/extra --disable-versioned-doc
+#+END_EXAMPLE
+-> FAILED SO FAR
+
+** Finally got it to configure:
+/cygdrive/c/CMake28/bin/cmake.exe -G "NMake Makefiles" -D CMAKE_TOOLCHAIN_FILE=../../src/cmake/AvrGcc.cmake -D BOARD=Uno ../../src
+
+* Windows style install
+** CMake 2.8 for Windows (not cygwin version)
+Install under C:\CMake28
+** Microsoft Visual Studio C++ Express (for nmake)
+Install under C:\MVSC10
+** Arduino IDE for Win32 (contain the toolchain)
+Install under C:\Arduino22
+** Install Git for Windows ([[http://code.google.com/p/msysgit/][msysgit]])
+Install under C:\MsysGit
+Choose the options:
+- git-cheetah
+- run git from the windows command prompt
+- checkout Windows-style, commit Unix-style line endings
+** Download [[http://code.google.com/p/mintty/][mintty]] (mintty-0.9.7-mysys.zip)
+Install the .exe under the Git bin directory
+* Others
+
+arduino/hardware/arduino/boards.txt:
+uno.name=Arduino Uno
+uno.upload.protocol=stk500
+uno.upload.maximum_size=32256
+uno.upload.speed=115200
+uno.bootloader.low_fuses=0xff
+uno.bootloader.high_fuses=0xde
+uno.bootloader.extended_fuses=0x05
+uno.bootloader.path=optiboot
+uno.bootloader.file=optiboot_atmega328.hex
+uno.bootloader.unlock_bits=0x3F
+uno.bootloader.lock_bits=0x0F
+uno.build.mcu=atmega328p
+uno.build.f_cpu=16000000L
+uno.build.core=arduino
+
+programmers.txt
+arduinoisp.name=Arduino as ISP
+arduinoisp.communication=serial
+arduinoisp.protocol=stk500v1
+arduinoisp.speed=19200
+
+avrdude.exe -C "C:\Arduino22\hardware\tools\avr\etc\avrdude.conf" -P COM7  -V -c stk500v1 -p atmega328p -U flash:w:digitalBaro.hex
+
+# new options
+last.sketch.count=1
+build.path=C:\arduino\projects\build
+build.verbose=true
+upload.verbose=true
+
+upload.bat:
+set ARDUINO_ROOT=C:\Arduino
+
+set MCU=atmega328p
+
+set AVR_DIR=%ARDUINO_ROOT%\hardware\tools\avr
+
+set COM_PORT=COM7
+
+%AVR_DIR%\bin\avrdude -C "%AVR_DIR%\etc\avrdude.conf" -p %MCU% -V -c
+stk500v1 -P "\\.\%COM_PORT%" -D -U flash:w:%1
+* Build procedure under Windows, using the Arduino IDE toolchain and Win32 cmd
+#+BEGIN_EXAMPLE
+# From a freshly created build directory like;
+# mkdir -p build/uno (Cygwin)
+chdir C:\Users\flupes\Arduino\digibaro\build\uno
+
+# Configure the build
+# Visual Studio Command Line from now on...
+cmake -D CMAKE_TOOLCHAIN_FILE=../../src/ArduinoUno.cmake ../../src
+
+# build
+nmake
+
+# Convert to hex
+avr-objcopy -O ihex -R .eeprom DigitalBaro/digitalBaro DigitalBaro/digitalBaro.hex
+
+# Upload with AvrDude
+avrdude.exe -C "C:\Arduino22\hardware\tools\avr\etc\avrdude.conf" -P COM7
+-V -c stk500v1 -p atmega328p -U flash:w:DigitalBaro\digitalBaro.hex
+#+END_EXAMPLE
+* Performance of Cygwin vs. PowerShell
+- full build: cygwin 40s real / 27s sys | ps:  ~12s
