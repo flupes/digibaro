@@ -1,0 +1,11 @@
+# Define the local library
+add_library(dbaro
+    Pressure_BMP085.cpp
+    RTC_DS3231.cpp
+)
+
+# Where to find the includes
+include_directories( ${libspath}/Wire ${libspath}/ST7565 )
+
+# Create the executable
+add_program( DigitalBaro dbaro eepromUtils analog5b corearduino m)

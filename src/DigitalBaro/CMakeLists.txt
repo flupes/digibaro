@@ -1,0 +1,12 @@
+# Define the local library
+add_library(dbaro
+    Pressure_BMP085.cpp
+    RTC_DS3231.cpp
+)
+
+# Where to find the includes
+include_directories( ${libspath}/Wire ${libspath}/ST7565 )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../AnalogFiveButtons )
+
+# Create the executable
+add_program( DigitalBaro dbaro analog5b arduinolibs corearduino m)
