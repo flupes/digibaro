@@ -1,3 +1,6 @@
 [submodule "src/EepromUtils"]
 	path = src/EepromUtils
 	url = git@github.com:flupes/EepromUtils.git
+[submodule "src/AnalogFiveButtons"]
+	path = src/AnalogFiveButtons
+	url = git@github.com:flupes/AnalogFiveButtons.git
