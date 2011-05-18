@@ -10,6 +10,12 @@ foreach(dir Wire Wire/utility ST7565)
 	include_directories( ${libspath}/${dir} )
 endforeach(dir)
 
+foreach(dir ST7565)
+	file(GLOB tmpfiles ./${dir}/*.c ./${dir}/*.cpp)
+	list(APPEND libsfiles ${tmpfiles}) 
+	include_directories( ./${dir} )
+endforeach(dir)
+
 message(STATUS "libspath=${libspath}")
 message(STATUS "libsfiles=${libsfiles}")
 
