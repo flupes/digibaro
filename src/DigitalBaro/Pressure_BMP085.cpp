@@ -8,31 +8,33 @@
 Pressure_BMP085::Pressure_BMP085(int address, unsigned char overSampling) :
   m_sensorAddress(address), OSS(overSampling)
 {
-  if ( overSampling < 0 || overSampling > 3 ) {
+  if ( overSampling > 3 ) {
     exit(-1);
   }
 }
   
 void Pressure_BMP085::readData()
 {
-  rawTemperature = readRawTemperature();
-  rawPressure = readRawPressure();
+  m_rawTemperature = readRawTemperature();
+  m_rawPressure = readRawPressure();
 }
 
-short Pressure_BMP085::getTemperature()
+int Pressure_BMP085::getTemperature()
 {
   long x1, x2;
   
-  x1 = (((long)rawTemperature - (long)ac6)*(long)ac5) >> 15;
+  x1 = (((long)m_rawTemperature - (long)ac6)*(long)ac5) >> 15;
   x2 = ((long)mc << 11)/(x1 + md);
   b5 = x1 + x2;
 
-  return ((b5 + 8)>>4);  
+  m_calibratedTemperature = (b5 + 8) >> 4;
+
+  return m_calibratedTemperature;  
 }
   
 long Pressure_BMP085::getPressure()
 {
-  long x1, x2, x3, b3, b6, p;
+  long x1, x2, x3, b3, b6;
   unsigned long b4, b7;
   
   b6 = b5 - 4000;
@@ -48,18 +50,23 @@ long Pressure_BMP085::getPressure()
   x3 = ((x1 + x2) + 2)>>2;
   b4 = (ac4 * (unsigned long)(x3 + 32768))>>15;
   
-  b7 = ((unsigned long)(rawPressure - b3) * (50000>>OSS));
+  b7 = ((unsigned long)(m_rawPressure - b3) * (50000>>OSS));
   if (b7 < 0x80000000)
-    p = (b7<<1)/b4;
+    m_calibratedPressure = (b7<<1)/b4;
   else
-    p = (b7/b4)<<1;
+    m_calibratedPressure = (b7/b4)<<1;
     
-  x1 = (p>>8) * (p>>8);
+  x1 = (m_calibratedPressure>>8) * (m_calibratedPressure>>8);
   x1 = (x1 * 3038)>>16;
-  x2 = (-7357 * p)>>16;
-  p += (x1 + x2 + 3791)>>4;
+  x2 = (-7357 * m_calibratedPressure)>>16;
+  m_calibratedPressure += (x1 + x2 + 3791)>>4;
   
-  return p;
+  return m_calibratedPressure;
+}
+
+unsigned int Pressure_BMP085::getPressureDeciPa()
+{
+  return (m_calibratedPressure/2+2)/5;
 }
 
 void Pressure_BMP085::calibrate() 

@@ -7,9 +7,11 @@ public:
   
   void readData();
 
-  short getTemperature();
+  int getTemperature();
   
   long getPressure();
+
+  unsigned int getPressureDeciPa();
 
   void printTemperature(char str[]);
 
@@ -24,29 +26,28 @@ protected:
   unsigned long readRawPressure();
   
   int readInt(unsigned char address);
+  
+  unsigned long m_rawPressure;
+  long m_calibratedPressure;
+  unsigned int m_rawTemperature;
+  int m_calibratedTemperature;
+
+  long b5; 
+  int m_sensorAddress;
 
 // Calibration values
   int ac1;
   int ac2; 
   int ac3; 
-  unsigned int ac4;
-  unsigned int ac5;
-  unsigned int ac6;
   int b1; 
   int b2;
   int mb;
   int mc;
   int md;
+  unsigned int ac4;
+  unsigned int ac5;
+  unsigned int ac6;
   
-// b5 is calculated in bmp085GetTemperature(...), this variable is also used in bmp085GetPressure(...)
-// so ...Temperature(...) must be called before ...Pressure(...).
-  long b5; 
-
-  unsigned int rawTemperature;
-  unsigned long rawPressure;
-  
-  int m_sensorAddress;
-
   unsigned char OSS;
   
 };
