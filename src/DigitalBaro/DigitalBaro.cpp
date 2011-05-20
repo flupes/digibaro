@@ -30,27 +30,12 @@ int startX = 6;
 int startY = 40; 
 int buttonsX[5];
 
-char elapsedStr[8];
-char blank[8] = "       ";
-
-char timeStr[24];
-
 char tempStr[24];
 char pressureStr[24];
+char timeStr[24];
+char elapsedStr[6];
 
 boolean backlight;
-
-/*
-extern "C" void __cxa_pure_virtual(void)
-{
-  // call to a pure virtual function happened ... 
-  // wow, should never happen ... stop
-    for(;;)
-    {
-
-    }
-}
-*/
 
 void setup() {                
   
@@ -95,19 +80,6 @@ void loop()
 
   a5b.update();
 
-  byte bm = 1;
-  for ( int i=0; i<5; i++ ) {
-    int state = a5b.getState(bm);
-    if ( state ) {
-      glcd.fillrect(buttonsX[i], startY, squareSize, squareSize, 1);
-    }
-    else {
-      glcd.fillrect(buttonsX[i]+1, startY+1, squareSize-2, squareSize-2, 0);
-      glcd.drawrect(buttonsX[i], startY, squareSize, squareSize, 1);
-    }
-    bm = bm << 1;
-  }
-  
   if ( a5b.getState(AnalogFiveButtons::BM_5) && 
        a5b.getState(AnalogFiveButtons::BM_4) ) {
     digitalWrite(BACKLIGHT_LED, LOW);
@@ -117,7 +89,6 @@ void loop()
        a5b.getState(AnalogFiveButtons::BM_3) ) {
     digitalWrite(BACKLIGHT_LED, HIGH);
   }
-
 
   unsigned long newtime = millis();
   int elapsed = newtime-prevtime;
@@ -131,10 +102,18 @@ void loop()
   if (counter%5 == 0) {
     clock.readData();
     clock.printTime(timeStr);
-    glcd.drawstring(8, 3, timeStr);
+    glcd.drawstring(8, 0, timeStr);
   }
 
   if (counter == 20) {
+    /** @warning
+        This is something to debug:
+        if no "graphic" call to the glcd is made, then
+        the first letter of the temperature and pressure
+        is missing (no P, not T) !!!
+    */
+    glcd.setpixel(0,0,1);
+    glcd.setpixel(0,0,0);
     baro.readData();
     baro.printTemperature(tempStr);
     glcd.drawstring(8, 1, tempStr);
