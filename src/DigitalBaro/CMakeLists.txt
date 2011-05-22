@@ -1,6 +1,6 @@
 # Define the local library
 add_library(dbaro
-    Pressure_BMP085.cpp
+    Bmp085.cpp
     RTC_DS3231.cpp
 )
 

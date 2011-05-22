@@ -1,56 +1,57 @@
-#include "Pressure_BMP085.h"
+#include "Bmp085.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <Wire.h>
 #include <wiring.h>
 
-Pressure_BMP085::Pressure_BMP085(int address, unsigned char overSampling) :
-  m_sensorAddress(address), OSS(overSampling)
+Bmp085::Bmp085(int address, unsigned char overSampling) :
+  m_sensorAddress(address), m_oss(overSampling)
 {
   if ( overSampling > 3 ) {
     exit(-1);
   }
 }
   
-void Pressure_BMP085::readData()
+void Bmp085::readData()
 {
   m_rawTemperature = readRawTemperature();
   m_rawPressure = readRawPressure();
 }
 
-int Pressure_BMP085::getTemperature()
+int Bmp085::getTemperature()
 {
   long x1, x2;
   
-  x1 = (((long)m_rawTemperature - (long)ac6)*(long)ac5) >> 15;
-  x2 = ((long)mc << 11)/(x1 + md);
-  b5 = x1 + x2;
+  x1 = (((long)m_rawTemperature - (long)m_ac6)*(long)m_ac5) >> 15;
+  x2 = ((long)m_mc << 11)/(x1 + m_md);
+  m_b5 = x1 + x2;
 
-  m_calibratedTemperature = (b5 + 8) >> 4;
+  m_calibratedTemperature = (m_b5 + 8) >> 4;
 
   return m_calibratedTemperature;  
 }
   
-long Pressure_BMP085::getPressure()
+long Bmp085::getPressure()
 {
-  long x1, x2, x3, b3, b6;
+  long x1, x2, x3, b3, b6, b8;
   unsigned long b4, b7;
   
-  b6 = b5 - 4000;
+  b6 = m_b5 - 4000;
+  b8 = (b6 * b6)>>12;
   // Calculate B3
-  x1 = (b2 * (b6 * b6)>>12)>>11;
-  x2 = (ac2 * b6)>>11;
+  x1 = (m_b2 * b8)>>11;
+  x2 = (m_ac2 * b6)>>11;
   x3 = x1 + x2;
-  b3 = (((((long)ac1)*4 + x3)<<OSS) + 2)>>2;
+  b3 = (((((long)m_ac1)*4 + x3)<<m_oss) + 2)>>2;
   
   // Calculate B4
-  x1 = (ac3 * b6)>>13;
-  x2 = (b1 * ((b6 * b6)>>12))>>16;
+  x1 = (m_ac3 * b6)>>13;
+  x2 = (m_b1 * b8)>>16;
   x3 = ((x1 + x2) + 2)>>2;
-  b4 = (ac4 * (unsigned long)(x3 + 32768))>>15;
+  b4 = (m_ac4 * (unsigned long)(x3 + 32768))>>15;
   
-  b7 = ((unsigned long)(m_rawPressure - b3) * (50000>>OSS));
+  b7 = ((unsigned long)(m_rawPressure - b3) * (50000>>m_oss));
   if (b7 < 0x80000000)
     m_calibratedPressure = (b7<<1)/b4;
   else
@@ -64,27 +65,27 @@ long Pressure_BMP085::getPressure()
   return m_calibratedPressure;
 }
 
-unsigned int Pressure_BMP085::getPressureDeciPa()
+unsigned int Bmp085::getPressureDeciPa()
 {
   return (m_calibratedPressure/2+2)/5;
 }
 
-void Pressure_BMP085::calibrate() 
+void Bmp085::calibrate() 
 {
-  ac1 = readInt(0xAA);
-  ac2 = readInt(0xAC);
-  ac3 = readInt(0xAE);
-  ac4 = readInt(0xB0);
-  ac5 = readInt(0xB2);
-  ac6 = readInt(0xB4);
-  b1 = readInt(0xB6);
-  b2 = readInt(0xB8);
-  mb = readInt(0xBA);
-  mc = readInt(0xBC);
-  md = readInt(0xBE);
+  m_ac1 = readInt(0xAA);
+  m_ac2 = readInt(0xAC);
+  m_ac3 = readInt(0xAE);
+  m_ac4 = readInt(0xB0);
+  m_ac5 = readInt(0xB2);
+  m_ac6 = readInt(0xB4);
+  m_b1 = readInt(0xB6);
+  m_b2 = readInt(0xB8);
+  m_mb = readInt(0xBA);
+  m_mc = readInt(0xBC);
+  m_md = readInt(0xBE);
 }
   
-unsigned int Pressure_BMP085::readRawTemperature()
+unsigned int Bmp085::readRawTemperature()
 {
   unsigned int ut;
   
@@ -103,20 +104,20 @@ unsigned int Pressure_BMP085::readRawTemperature()
   return ut;
 }
   
-unsigned long Pressure_BMP085::readRawPressure()
+unsigned long Bmp085::readRawPressure()
 {
   unsigned char msb, lsb, xlsb;
   unsigned long up = 0;
   
-  // Write 0x34+(OSS<<6) into register 0xF4
+  // Write 0x34+(m_oss<<6) into register 0xF4
   // Request a pressure reading w/ oversampling setting
   Wire.beginTransmission(m_sensorAddress);
   Wire.send(0xF4);
-  Wire.send(0x34 + (OSS<<6));
+  Wire.send(0x34 + (m_oss<<6));
   Wire.endTransmission();
   
   // Wait for conversion, delay time dependent on OSS
-  delay(2 + (3<<OSS));
+  delay(2 + (3<<m_oss));
   
   // Read register 0xF6 (MSB), 0xF7 (LSB), and 0xF8 (XLSB)
   Wire.beginTransmission(m_sensorAddress);
@@ -131,12 +132,12 @@ unsigned long Pressure_BMP085::readRawPressure()
   lsb = Wire.receive();
   xlsb = Wire.receive();
   
-  up = (((unsigned long) msb << 16) | ((unsigned long) lsb << 8) | (unsigned long) xlsb) >> (8-OSS);
+  up = (((unsigned long) msb << 16) | ((unsigned long) lsb << 8) | (unsigned long) xlsb) >> (8-m_oss);
   
   return up;
 }
 
-int Pressure_BMP085::readInt(unsigned char address)
+int Bmp085::readInt(unsigned char address)
 {
   unsigned char msb, lsb;
   
@@ -154,7 +155,7 @@ int Pressure_BMP085::readInt(unsigned char address)
 }
 
 
-void Pressure_BMP085::printTemperature(char str[])
+void Bmp085::printTemperature(char str[])
 {
   int temperature = (int)getTemperature();
   strcpy(str, "T: ");
@@ -162,7 +163,7 @@ void Pressure_BMP085::printTemperature(char str[])
   strcpy(str+6, " * 0.1 deg C");
 }
 
-void Pressure_BMP085::printPressure(char str[])
+void Bmp085::printPressure(char str[])
 {
   long pressure = getPressure();
   strcpy(str, "P: ");

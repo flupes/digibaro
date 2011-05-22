@@ -1,11 +1,11 @@
-#include "Pressure_BMP085.h"
+#include "Bmp085.h"
 
 #include "WProgram.h"
 
-class TestPressure : public Pressure_BMP085
+class TestPressure : public Bmp085
 {
 public:
-  TestPressure() : Pressure_BMP085(0x77, 3) { }
+  TestPressure() : Bmp085(0x77, 3) { }
 
   // Fake function to see how getPressureDeciPa performs
   void setPressure(long p) {

@@ -4,17 +4,17 @@
 
 #include "AnalogFiveButtons.h"
 #include "RTC_DS3231.h"
-#include "Pressure_BMP085.h"
+#include "Bmp085.h"
 
 #define BACKLIGHT_LED 3
-#define WAIT_LOOP 10
+#define WAIT_LOOP 20
 
 #include "WProgram.h"
 void setup();
 void loop();
 ST7565 glcd(9, 8, 7, 6, 5);
 RTC_DS3231 clock(104);
-Pressure_BMP085 baro(0x77, 3);
+Bmp085 baro(0x77, 3);
 
 AnalogFiveButtons a5b(A2, 5.0);
 word ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
@@ -33,7 +33,8 @@ int buttonsX[5];
 char tempStr[24];
 char pressureStr[24];
 char timeStr[24];
-char elapsedStr[6];
+char elapsedStr[4];
+char blank[]="    ";
 
 boolean backlight;
 
@@ -96,8 +97,8 @@ void loop()
   str.toCharArray(elapsedStr, 8);
   prevtime = newtime;
 
-  // glcd.drawstring(8, 4, blank);
-  // glcd.drawstring(8, 4, elapsedStr);
+  glcd.drawstring(8, 4, blank);
+  glcd.drawstring(8, 4, elapsedStr);
 
   if (counter%5 == 0) {
     clock.readData();
@@ -105,7 +106,7 @@ void loop()
     glcd.drawstring(8, 0, timeStr);
   }
 
-  if (counter == 20) {
+  if (counter == 50) {
     /** @warning
         This is something to debug:
         if no "graphic" call to the glcd is made, then
