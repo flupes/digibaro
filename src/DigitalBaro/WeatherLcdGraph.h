@@ -7,7 +7,7 @@
 class WeatherLcdGraph
 {
 public:
-  WeatherLcdGraph(TimePermRingBuffer& buf, byte yOffset);
+  WeatherLcdGraph(TimePermRingBuffer& buf, byte lineOffset);
 
   void setLimits(uint16_t min, uint16_t max);
 
@@ -31,6 +31,9 @@ protected:
 
   uint8_t m_graphX;
   uint8_t m_graphY;
+  uint8_t m_lineOffset;
+  uint8_t m_somethingElse;
+
 };
 
 #endif

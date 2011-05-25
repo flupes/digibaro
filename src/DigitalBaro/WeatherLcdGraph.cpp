@@ -4,10 +4,11 @@
 
 #define GRAPH_Y_PIXELS 32
 
-WeatherLcdGraph::WeatherLcdGraph(TimePermRingBuffer& buf, byte yOffset) :
+WeatherLcdGraph::WeatherLcdGraph(TimePermRingBuffer& buf, byte lineOffset) :
   m_data(buf),
   m_graphX(LCDWIDTH-m_data.bufferSize()),
-  m_graphY(yOffset)
+  m_graphY(lineOffset*8),
+  m_lineOffset(lineOffset)
 {
   findExtremas();
 }
@@ -73,5 +74,9 @@ void WeatherLcdGraph::draw(ST7565 &lcd)
     lcd.setpixel(j, m_graphY+GRAPH_Y_PIXELS, 1);
   for (j=0; j<=GRAPH_Y_PIXELS; j++)
     lcd.setpixel(m_graphX-1, m_graphY+j, 1);
-  
+  char str[8];
+  utoa(m_maxY, str, 10);
+  lcd.drawstring(0, m_lineOffset, str);
+  utoa(m_minY, str, 10);
+  lcd.drawstring(0, m_lineOffset+3, str);
 }

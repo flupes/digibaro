@@ -12,7 +12,7 @@
 
 TimePermRingBuffer buffer(START_ADDR, BUFFER_SZ, sizeof(WeatherData), PERIOD);
 
-WeatherLcdGraph graph(buffer, 24);
+WeatherLcdGraph graph(buffer, 3);
 
 ST7565 glcd(9, 8, 7, 6, 5);
 
