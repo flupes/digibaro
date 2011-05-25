@@ -2,7 +2,7 @@
 
 set(libsfiles "")
 
-foreach(dir Wire Wire/utility ST7565)
+foreach(dir Wire Wire/utility)
 	file(GLOB tmpfiles ${libspath}/${dir}/*.c ${libspath}/${dir}/*.cpp)
 #	message(STATUS "path_to_lib=${libspath}/${dir}")
 #	message(STATUS "tmpfiles=${tmpfiles}")
@@ -11,6 +11,12 @@ foreach(dir Wire Wire/utility ST7565)
 endforeach(dir)
 
 foreach(dir ST7565)
+	file(GLOB tmpfiles ./${dir}/*.c ./${dir}/*.cpp)
+	list(APPEND libsfiles ${tmpfiles}) 
+	include_directories( ./${dir} )
+endforeach(dir)
+
+foreach(dir Time)
 	file(GLOB tmpfiles ./${dir}/*.c ./${dir}/*.cpp)
 	list(APPEND libsfiles ${tmpfiles}) 
 	include_directories( ./${dir} )
