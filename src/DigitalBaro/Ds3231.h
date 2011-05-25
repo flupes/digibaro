@@ -1,21 +1,30 @@
+#ifndef Ds3231_h
+#define Ds3231_h
 
 #include <wiring.h>
 
-class RTC_DS3231 {
+#include "Time.h"
+
+class Ds3231 {
 
 public:
-  RTC_DS3231(uint8_t address);
+  Ds3231(uint8_t address);
   
   void readData();
 
   void printTime(char str[]);
   
+  bool newSecond();
+  bool newMinute();
+
 protected:
 
   char *printTwoDec(byte val, char *ptr);
 
   uint8_t m_rtcAddress;
   
+  time_t m_time;
+
   byte m_seconds;
   byte m_minutes;
   byte m_hours;
@@ -24,4 +33,8 @@ protected:
   byte m_month;
   byte m_year;
 
+  byte m_oldMinutes;
+  byte m_oldSeconds;
 };
+
+#endif

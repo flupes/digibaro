@@ -1,4 +1,4 @@
-#include "RTC_DS3231.h"
+#include "Ds3231.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -9,13 +9,13 @@
   http://code.google.com/p/gfb/
 */
 
-RTC_DS3231::RTC_DS3231(uint8_t address) :
+Ds3231::Ds3231(uint8_t address) :
   m_rtcAddress(address)
 {
 
 }
 
-void RTC_DS3231::readData()
+void Ds3231::readData()
 {
   // send request to receive data starting at register 0
   Wire.beginTransmission(m_rtcAddress);
@@ -46,7 +46,7 @@ void RTC_DS3231::readData()
 
 }
 
-void RTC_DS3231::printTime(char str[])
+void Ds3231::printTime(char str[])
 {
   char *pdate = str;
   pdate = printTwoDec(m_hours, pdate);
@@ -85,7 +85,7 @@ void RTC_DS3231::printTime(char str[])
   pdate = printTwoDec(m_date, pdate);
 }
 
-char *RTC_DS3231::printTwoDec(byte val, char *ptr)
+char *Ds3231::printTwoDec(byte val, char *ptr)
 {
   int num;
   num = (int)val;

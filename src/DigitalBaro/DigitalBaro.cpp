@@ -3,18 +3,22 @@
 #include "ST7565.h"
 
 #include "AnalogFiveButtons.h"
-#include "RTC_DS3231.h"
+#include "Ds3231.h"
 #include "Bmp085.h"
+#include "WeatherLcdGraph.h"
+#include "WeatherSample.h"
 
 #define BACKLIGHT_LED 3
 #define WAIT_LOOP 20
 
-#include "WProgram.h"
+//#include "WProgram.h"
 void setup();
 void loop();
 ST7565 glcd(9, 8, 7, 6, 5);
-RTC_DS3231 clock(104);
+Ds3231 clock(104);
 Bmp085 baro(0x77, 3);
+TimePermRingBuffer buffer(0, 96, sizeof(WeatherData), 15);
+WeatherLcdGraph graph(buffer, 3);
 
 AnalogFiveButtons a5b(A2, 5.0);
 word ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
