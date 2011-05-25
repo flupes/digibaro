@@ -3,8 +3,8 @@
 
 #include "math.h"
 
-#define START_ADDR 128
-#define BUFFER_SZ 72
+#define START_ADDR 0
+#define BUFFER_SZ 96
 #define PERIOD 2
 
 #define BACKLIGHT_LED 3
@@ -12,11 +12,11 @@
 
 TimePermRingBuffer buffer(START_ADDR, BUFFER_SZ, sizeof(WeatherData), PERIOD);
 
-WeatherLcdGraph graph(buffer);
+WeatherLcdGraph graph(buffer, 24);
 
 ST7565 glcd(9, 8, 7, 6, 5);
 
-long counter;
+long counter = 200;
 
 char timeStr[16];
 
@@ -34,7 +34,7 @@ void setup()
 
   // show splashscreen
   glcd.display(); 
-  delay(1000);
+  delay(100);
   glcd.clear();
 }
 

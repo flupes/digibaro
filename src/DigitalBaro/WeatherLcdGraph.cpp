@@ -3,11 +3,11 @@
 #include "WeatherSample.h"
 
 #define GRAPH_Y_PIXELS 32
-#define GRAPH_X_POS 56
-#define GRAPH_Y_POS 16
 
-WeatherLcdGraph::WeatherLcdGraph(TimePermRingBuffer& buf) :
-  m_data(buf)
+WeatherLcdGraph::WeatherLcdGraph(TimePermRingBuffer& buf, byte yOffset) :
+  m_data(buf),
+  m_graphX(LCDWIDTH-m_data.bufferSize()),
+  m_graphY(yOffset)
 {
   findExtremas();
 }
@@ -46,24 +46,32 @@ void WeatherLcdGraph::draw(ST7565 &lcd)
 {
   uint16_t pressure;
   long time;
-  uint8_t x, y;
+  uint8_t x, y, j;
   WeatherSample sample;
   uint16_t size = m_data.bufferSize();
-  lcd.fillrect(GRAPH_X_POS, GRAPH_Y_POS, GRAPH_X_POS+size, GRAPH_Y_POS+GRAPH_Y_PIXELS, 0);
+  lcd.fillrect(m_graphX, m_graphY, m_graphX+size, m_graphY+GRAPH_Y_PIXELS, 0);
   for (uint16_t i=0; i<size; i++) {
     time = m_data.read(i, sample);
     pressure = sample.getPressure();
-    x = (uint8_t)(GRAPH_X_POS+size-i);
-    y = (uint8_t)((pressure-m_minY)/m_scale);
-    if ( y > GRAPH_Y_PIXELS ) {
-      y = GRAPH_Y_PIXELS;
-    }
+    if ( pressure != 0xFFFF ) {
+      x = (uint8_t)(m_graphX+size-i-1);
+      y = (uint8_t)((pressure-m_minY)/m_scale);
+      if ( y > GRAPH_Y_PIXELS ) {
+        y = GRAPH_Y_PIXELS;
+      }
     // Serial.print("pressure=");
     // Serial.print(pressure, DEC);
     // Serial.print(" -> y=");
     // Serial.println(y, DEC);
-    //lcd.drawline(x, GRAPH_Y_POS, x, GRAPH_Y_POS+GRAPH_Y_PIXELS, 0);
-    //lcd.drawline(x, GRAPH_Y_POS+GRAPH_Y_PIXELS-y, x, GRAPH_Y_POS+GRAPH_Y_PIXELS, 1);
-    lcd.setpixel(x, GRAPH_Y_POS+GRAPH_Y_PIXELS-y, 1);
+    //lcd.drawline(x, m_graphY, x, m_graphY+GRAPH_Y_PIXELS, 0);
+    //lcd.drawline(x, m_graphY+GRAPH_Y_PIXELS-y, x, m_graphY+GRAPH_Y_PIXELS, 1);
+      for (j=0; j<=y; j++)
+        lcd.setpixel(x, m_graphY+GRAPH_Y_PIXELS-j, 1);
+    }
   }
+  for (j=m_graphX; j<=LCDWIDTH; j++)
+    lcd.setpixel(j, m_graphY+GRAPH_Y_PIXELS, 1);
+  for (j=0; j<=GRAPH_Y_PIXELS; j++)
+    lcd.setpixel(m_graphX-1, m_graphY+j, 1);
+  
 }
