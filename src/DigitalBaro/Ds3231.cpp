@@ -9,10 +9,17 @@
   http://code.google.com/p/gfb/
 */
 
+Ds3231 *Ds3231::m_this = 0;
+
 Ds3231::Ds3231(uint8_t address) :
   m_rtcAddress(address)
 {
+  m_this = this;
+}
 
+time_t Ds3231::getTimeSync()
+{
+  return m_this->getRtcTime();
 }
 
 time_t Ds3231::getRtcTime()
