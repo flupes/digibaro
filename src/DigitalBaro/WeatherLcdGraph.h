@@ -9,15 +9,19 @@ class WeatherLcdGraph
 public:
   WeatherLcdGraph(TimePermRingBuffer& buf, byte lineOffset);
 
-  void setLimits(uint16_t min, uint16_t max);
+  void setLimits(int16_t min, int16_t max);
+
+  int16_t minY();
+
+  int16_t maxY();
 
   void draw(ST7565 &lcd);
 
 protected:
   void findExtremas();
   
-  uint16_t m_minY;
-  uint16_t m_maxY;
+  int16_t m_minY;
+  int16_t m_maxY;
 
   uint16_t m_minPressure;
   uint16_t m_maxPressure;

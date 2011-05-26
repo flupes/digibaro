@@ -13,11 +13,19 @@ WeatherLcdGraph::WeatherLcdGraph(TimePermRingBuffer& buf, byte lineOffset) :
   findExtremas();
 }
 
-void WeatherLcdGraph::setLimits(uint16_t min, uint16_t max)
+void WeatherLcdGraph::setLimits(int16_t min, int16_t max)
 {
   m_minY = min;
   m_maxY = max;
   m_scale = (max-min)/GRAPH_Y_PIXELS;
+}
+
+int16_t WeatherLcdGraph::minY() {
+  return m_minY;
+}
+
+int16_t WeatherLcdGraph::maxY() {
+  return m_maxY;
 }
 
 void WeatherLcdGraph::findExtremas()
