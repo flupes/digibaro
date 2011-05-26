@@ -5,7 +5,7 @@
 
 struct WeatherData {
   uint16_t pressure;
-  uint16_t temperature;
+  int16_t temperature;
 };
 
 class WeatherSample : public DataSample
@@ -29,6 +29,14 @@ public:
   /** Set the pressure in Deci Pascal */
   void setPressure(uint16_t p) {
     m_data.pressure = p;
+  }
+
+  uint16_t getTemperature() {
+    return m_data.temperature;
+  }
+
+  void setTemperature(int16_t t) {
+    m_data.temperature = t;
   }
 
 protected:
