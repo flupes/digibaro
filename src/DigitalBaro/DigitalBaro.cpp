@@ -17,7 +17,7 @@ void loop();
 ST7565 glcd(9, 8, 7, 6, 5);
 Ds3231 clock(104);
 Bmp085 baro(0x77, 3);
-TimePermRingBuffer buffer(0, 96, sizeof(WeatherData), 15);
+TimePermRingBuffer buffer(0, 96, sizeof(WeatherData), 600);
 WeatherLcdGraph graph(buffer, 3);
 
 AnalogFiveButtons a5b(A2, 5.0);
@@ -27,6 +27,8 @@ byte state = 0;
 
 int counter;
 unsigned long prevtime;
+time_t currentTime;
+time_t lastTime;
 
 int squareSize = 12;
 int squareSpacing = 24;
@@ -57,6 +59,8 @@ void setup() {
   digitalWrite(BACKLIGHT_LED, HIGH);
   backlight = true;
 
+  setSyncProvider(Ds3231::getTimeSync);
+
   // For I2C
   Wire.begin();
 
@@ -75,12 +79,18 @@ void setup() {
     buttonsX[5-i-1] = startX+i*squareSpacing;
   }
 
+  graph.setLimits(10100, 10200);
+
   counter = 0;
   prevtime = millis();
 }
 
 void loop()                     
 {
+  byte lastMinute = 127;
+  byte currentMinute = 127;
+  WeatherSample sample;
+
   //glcd.clear();
 
   a5b.update();
@@ -95,21 +105,51 @@ void loop()
     digitalWrite(BACKLIGHT_LED, HIGH);
   }
 
+  if ( a5b.buttonPressed(AnalogFiveButtons::BM_4) ) {
+    graph.setLimits(graph.minY(), graph.maxY()+10);
+    a5b.clearButton(AnalogFiveButtons::BM_4);
+  }
+  if ( a5b.buttonPressed(AnalogFiveButtons::BM_3) ) {
+    graph.setLimits(graph.minY(), graph.maxY()-10);
+    a5b.clearButton(AnalogFiveButtons::BM_3);
+  }
+  if ( a5b.buttonPressed(AnalogFiveButtons::BM_2) ) {
+    graph.setLimits(graph.minY()+10, graph.maxY());
+    a5b.clearButton(AnalogFiveButtons::BM_2);
+  }
+  if ( a5b.buttonPressed(AnalogFiveButtons::BM_1) ) {
+    graph.setLimits(graph.minY()-10, graph.maxY());
+    a5b.clearButton(AnalogFiveButtons::BM_1);
+  }
+
   unsigned long newtime = millis();
   int elapsed = newtime-prevtime;
   String str(elapsed, DEC);
   str.toCharArray(elapsedStr, 8);
   prevtime = newtime;
 
-  glcd.drawstring(8, 4, blank);
-  glcd.drawstring(8, 4, elapsedStr);
+  glcd.drawstring(8, 7, blank);
+  glcd.drawstring(8, 7, elapsedStr);
 
-  if (counter%5 == 0) {
+  currentTime = now();
+  //Serial.print("current time = ");
+  //Serial.println(currentTime, DEC);
+  if ( currentTime != lastTime ) {
     clock.readData();
     clock.printTime(timeStr);
     glcd.drawstring(8, 0, timeStr);
+    currentMinute = minute(now());
+//    if ( lastMinute != currentMinute ) {
+      baro.readData();
+      sample.setPressure(baro.getPressureDeciPa());
+      sample.setTemperature(baro.getTemperature());
+      buffer.insert(sample, (long)currentTime);
+      graph.draw(glcd);
+      lastMinute = currentMinute; 
+//    }
+    lastTime = currentTime;
   }
-
+  
   if (counter == 50) {
     /** @warning
         This is something to debug:
