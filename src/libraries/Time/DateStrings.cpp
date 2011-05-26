@@ -15,38 +15,43 @@
 
 static char buffer[dt_MAX_STRING_LEN+1];  // must be big enough for longest string and the terminating null
 
-char monthStr1[] PROGMEM = "January";
-char monthStr2[] PROGMEM = "February";
-char monthStr3[] PROGMEM = "March";
-char monthStr4[] PROGMEM = "April";
-char monthStr5[] PROGMEM = "May";
-char monthStr6[] PROGMEM = "June";
-char monthStr7[] PROGMEM = "July";
-char monthStr8[] PROGMEM = "August";
-char monthStr9[] PROGMEM = "September";
-char monthStr10[] PROGMEM = "October";
-char monthStr11[] PROGMEM = "November";
-char monthStr12[] PROGMEM = "December";
+// From thread: http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=57011
+// and associated bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
+// we define a progmem macro that works with C++
+#define CPPPROGMEM __attribute__((section (".progmem.data"))) 
 
-PGM_P monthNames_P[] PROGMEM = 
+char monthStr1[] CPPPROGMEM = "January";
+char monthStr2[] CPPPROGMEM = "February";
+char monthStr3[] CPPPROGMEM = "March";
+char monthStr4[] CPPPROGMEM = "April";
+char monthStr5[] CPPPROGMEM = "May";
+char monthStr6[] CPPPROGMEM = "June";
+char monthStr7[] CPPPROGMEM = "July";
+char monthStr8[] CPPPROGMEM = "August";
+char monthStr9[] CPPPROGMEM = "September";
+char monthStr10[] CPPPROGMEM = "October";
+char monthStr11[] CPPPROGMEM = "November";
+char monthStr12[] CPPPROGMEM = "December";
+
+PGM_P monthNames_P[] CPPPROGMEM = 
 {
     "",monthStr1,monthStr2,monthStr3,monthStr4,monthStr5,monthStr6,
 	monthStr7,monthStr8,monthStr9,monthStr10,monthStr11,monthStr12
 };
 
-char monthShortNames_P[] PROGMEM = "ErrJanFebMarAprMayJunJulAugSepOctNovDec";
+char monthShortNames_P[] CPPPROGMEM = "ErrJanFebMarAprMayJunJulAugSepOctNovDec";
 
-char dayStr0[] PROGMEM = "Err";
-char dayStr1[] PROGMEM = "Sunday";
-char dayStr2[] PROGMEM = "Monday";
-char dayStr3[] PROGMEM = "Tuesday";
-char dayStr4[] PROGMEM = "Wednesday";
-char dayStr5[] PROGMEM = "Thursday";
-char dayStr6[] PROGMEM = "Friday";
-char dayStr7[] PROGMEM = "Saturday";
+char dayStr0[] CPPPROGMEM = "Err";
+char dayStr1[] CPPPROGMEM = "Sunday";
+char dayStr2[] CPPPROGMEM = "Monday";
+char dayStr3[] CPPPROGMEM = "Tuesday";
+char dayStr4[] CPPPROGMEM = "Wednesday";
+char dayStr5[] CPPPROGMEM = "Thursday";
+char dayStr6[] CPPPROGMEM = "Friday";
+char dayStr7[] CPPPROGMEM = "Saturday";
 
-PGM_P dayNames_P[] PROGMEM = { dayStr0,dayStr1,dayStr2,dayStr3,dayStr4,dayStr5,dayStr6,dayStr7};
-char dayShortNames_P[] PROGMEM = "ErrSunMonTueWedThrFriSat";
+PGM_P dayNames_P[] CPPPROGMEM = { dayStr0,dayStr1,dayStr2,dayStr3,dayStr4,dayStr5,dayStr6,dayStr7};
+char dayShortNames_P[] CPPPROGMEM = "ErrSunMonTueWedThrFriSat";
 
 /* functions to return date strings */
 
