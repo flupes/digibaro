@@ -21,7 +21,7 @@ TimePermRingBuffer buffer(0, 96, sizeof(WeatherData), 600);
 WeatherLcdGraph graph(buffer, 3);
 
 AnalogFiveButtons a5b(A2, 5.0);
-word ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
+uint16_t ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
 
 byte state = 0;
 
@@ -70,7 +70,7 @@ void setup() {
   Serial.begin(9600);
 
   // Configure the ladder
-  a5b.setLadder(3.3, ladder);
+  a5b.setLadder(3.3f, ladder);
   a5b.removeState(17);
   a5b.removeState(18);
   a5b.setTiming(20, 3);
@@ -83,6 +83,21 @@ void setup() {
 
   counter = 0;
   prevtime = millis();
+
+  Serial.print("buffer storage size = ");
+  Serial.println(buffer.storageSize(), DEC);
+  time_t startTime = now();
+  tmElements_t tm;
+  long bufferTimeStamp = buffer.lastTimeStamp();
+  if ( bufferTimeStamp == 0xFFFFFFFFl || 
+       startTime > bufferTimeStamp+buffer.period()*buffer.bufferSize() ) {
+    breakTime(startTime, tm);
+    tm.Second = 0;
+    if ( buffer.period() > 3600 ) tm.Minute = 0;
+    startTime = makeTime(tm);
+    buffer.setTimeStamp((long)startTime);
+  }
+
 }
 
 void loop()                     
@@ -107,18 +122,22 @@ void loop()
 
   if ( a5b.buttonPressed(AnalogFiveButtons::BM_4) ) {
     graph.setLimits(graph.minY(), graph.maxY()+10);
+    graph.draw(glcd);
     a5b.clearButton(AnalogFiveButtons::BM_4);
   }
   if ( a5b.buttonPressed(AnalogFiveButtons::BM_3) ) {
     graph.setLimits(graph.minY(), graph.maxY()-10);
+    graph.draw(glcd);
     a5b.clearButton(AnalogFiveButtons::BM_3);
   }
   if ( a5b.buttonPressed(AnalogFiveButtons::BM_2) ) {
     graph.setLimits(graph.minY()+10, graph.maxY());
+    graph.draw(glcd);
     a5b.clearButton(AnalogFiveButtons::BM_2);
   }
   if ( a5b.buttonPressed(AnalogFiveButtons::BM_1) ) {
     graph.setLimits(graph.minY()-10, graph.maxY());
+    graph.draw(glcd);
     a5b.clearButton(AnalogFiveButtons::BM_1);
   }
 
