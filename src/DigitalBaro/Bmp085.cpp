@@ -157,17 +157,20 @@ int Bmp085::readInt(unsigned char address)
 
 void Bmp085::printTemperature(char str[])
 {
-  int temperature = (int)getTemperature();
-  strcpy(str, "T: ");
-  itoa(temperature, str+3, 10);
-  strcpy(str+6, " * 0.1 deg C");
+  int temperature = getTemperature();
+  itoa(temperature, str, 10);
+  memcpy(str+3, str+2, 1);
+  memcpy(str+2, ".", 1);
+  strcpy(str+4, "\x5E");
+  strcpy(str+5, "C");
 }
 
 void Bmp085::printPressure(char str[])
 {
-  long pressure = getPressure();
-  strcpy(str, "P: ");
-  ltoa(pressure, str+3, 10);
-  strcpy(str+9, " Pa");
+  int pressure = getPressureDeciPa();
+  itoa(pressure, str, 10);
+  memcpy(str+5, str+4, 1);
+  memcpy(str+4, ".", 1);
+  strcpy(str+6, "Pa");
 }
 
