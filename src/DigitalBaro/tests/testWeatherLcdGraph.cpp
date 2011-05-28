@@ -12,7 +12,7 @@
 
 TimePermRingBuffer buffer(START_ADDR, BUFFER_SZ, sizeof(WeatherData), PERIOD);
 
-WeatherLcdGraph graph(buffer, 3);
+WeatherLcdGraph graph;
 
 ST7565 glcd(9, 8, 7, 6, 5);
 
@@ -23,6 +23,7 @@ char timeStr[16];
 void setup()
 {
   graph.setLimits(900, 1100);
+  graph.setBuffer(&buffer);
   Serial.begin(9600);
 
   // initialize GLCD
