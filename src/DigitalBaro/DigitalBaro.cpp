@@ -17,11 +17,17 @@ void loop();
 ST7565 glcd(9, 8, 7, 6, 5);
 Ds3231 clock(104);
 Bmp085 baro(0x77, 3);
-TimePermRingBuffer buffer(0, 96, sizeof(WeatherData), 600);
-WeatherLcdGraph graph(buffer, 3);
+TimePermRingBuffer dayBuffer(0, 96, sizeof(WeatherData), 600, 8);
+TimePermRingBuffer weekBuffer(512, 96, sizeof(WeatherData), 5400, 1);
+boolean extendedBuffer;
+
+WeatherLcdGraph graph;
 
 AnalogFiveButtons a5b(A2, 5.0);
 uint16_t ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
+
+int temperatures[8];
+long pressures[8];
 
 byte state = 0;
 
@@ -30,14 +36,7 @@ unsigned long prevtime;
 time_t currentTime;
 time_t lastTime;
 
-int squareSize = 12;
-int squareSpacing = 24;
-int startX = 6;
-int startY = 40; 
-int buttonsX[5];
-
-char tempStr[24];
-char pressureStr[24];
+char statusStr[24];
 char timeStr[24];
 char elapsedStr[4];
 char blank[]="    ";
@@ -45,7 +44,7 @@ char blank[]="    ";
 boolean backlight;
 
 void setup() {                
-  
+
   // initialize and set the contrast to 0x18
   glcd.begin(0x18);
 
@@ -53,7 +52,7 @@ void setup() {
   glcd.display(); 
   delay(500);
   glcd.clear(); 
-  
+
   // turn on backlight
   pinMode(BACKLIGHT_LED, OUTPUT);
   digitalWrite(BACKLIGHT_LED, HIGH);
@@ -75,71 +74,135 @@ void setup() {
   a5b.removeState(18);
   a5b.setTiming(20, 3);
 
-  for (int i=0; i<5; i++) {
-    buttonsX[5-i-1] = startX+i*squareSpacing;
-  }
-
   graph.setLimits(10100, 10200);
+  graph.setBuffer(&dayBuffer);
+  extendedBuffer = false;
 
   counter = 0;
   prevtime = millis();
 
-  Serial.print("buffer storage size = ");
-  Serial.println(buffer.storageSize(), DEC);
+//  Serial.print("day buffer storage size = ");
+//  Serial.println(dayBuffer.storageSize(), DEC);
+//  Serial.print("week buffer storage size = ");
+//  Serial.println(weekBuffer.storageSize(), DEC);
+
+//  delay(6000);
+
   time_t startTime = now();
+  Serial.print("start Time = ");
+  Serial.println(startTime, DEC);
   tmElements_t tm;
-  long bufferTimeStamp = buffer.lastTimeStamp();
-  if ( bufferTimeStamp == 0xFFFFFFFFl || 
-       startTime > bufferTimeStamp+buffer.period()*buffer.bufferSize() ) {
+  unsigned long bufferTimeStamp = dayBuffer.lastTimeStamp();
+  if ( bufferTimeStamp == 0xFFFFFFFFul || 
+       startTime > bufferTimeStamp+dayBuffer.timeSpan() ) {
     breakTime(startTime, tm);
+    Serial.println(tm.Day, DEC);
+    Serial.println(tm.Hour, DEC);
+    Serial.println(tm.Minute, DEC);
+    Serial.println(tm.Second, DEC);
     tm.Second = 0;
-    if ( buffer.period() > 3600 ) tm.Minute = 0;
+    tm.Minute = 0;
+    byte hourOffset = dayBuffer.timeSpan()/3600;
+    if ( hourOffset > 0 ) {
+      if ( tm.Hour < hourOffset ) {
+        tm.Day -= 1;
+        tm.Hour += 24-hourOffset;
+      }
+      else {
+        tm.Hour -= hourOffset;
+      }
+      // if ( dayBuffer.timeSpan() % 3600 != 0 ) 
+      //   tm.Hour += 1;
+    }
     startTime = makeTime(tm);
-    buffer.setTimeStamp((long)startTime);
+    dayBuffer.setTimeStamp(startTime);
+    weekBuffer.setTimeStamp(startTime);
+    Serial.print("set buffer start time = ");
+    Serial.println(startTime, DEC);
+    Serial.println(tm.Day, DEC);
+    Serial.println(tm.Hour, DEC);
+    Serial.println(tm.Minute, DEC);
+    Serial.println(tm.Second, DEC);
+  }
+
+  for (int i=0; i<8; i++) {
+    baro.readData();
+    temperatures[i] = baro.getTemperature();
+    pressures[i] = baro.getPressure();
+    delay (25);
   }
 
 }
 
 void loop()                     
 {
-  byte lastMinute = 127;
-  byte currentMinute = 127;
+  static byte currentMinute = 0;
+  static byte lastMinute = 0;
+  static byte avgIndex = 0;
   WeatherSample sample;
-
+  int avgTemperature;
+  long avgPressure;
   //glcd.clear();
 
   a5b.update();
 
-  if ( a5b.getState(AnalogFiveButtons::BM_5) && 
-       a5b.getState(AnalogFiveButtons::BM_4) ) {
-    digitalWrite(BACKLIGHT_LED, LOW);
+  if ( a5b.getState(AnalogFiveButtons::BM_5) ) {
+
+    // First test two button press
+
+    if ( a5b.buttonPressed(AnalogFiveButtons::BM_4) ) {
+      digitalWrite(BACKLIGHT_LED, LOW);
+      a5b.clearButton(AnalogFiveButtons::BM_5 | AnalogFiveButtons::BM_4);
+    }
+
+    if  ( a5b.buttonPressed(AnalogFiveButtons::BM_3) ) {
+      digitalWrite(BACKLIGHT_LED, HIGH);
+      a5b.clearButton(AnalogFiveButtons::BM_5 | AnalogFiveButtons::BM_3);
+    } 
+
+  }
+  else {
+    if  ( a5b.getState(AnalogFiveButtons::BM_2) 
+          && a5b.buttonPressed(AnalogFiveButtons::BM_1) ) {
+      if ( extendedBuffer ) {
+        graph.setBuffer(&dayBuffer);
+        extendedBuffer = false;
+      }
+      else {
+        graph.setBuffer(&weekBuffer);
+        extendedBuffer = true;
+      }
+      a5b.clearButton(AnalogFiveButtons::BM_1);
+    }
+ 
+    else {
+
+      // Then single button press
+      switch ( a5b.getPressedState() ) {
+        case 8:
+          graph.setLimits(graph.minY(), graph.maxY()+10);
+          graph.draw(glcd);
+          a5b.clearButton(AnalogFiveButtons::BM_4);
+          break;
+        case 4:
+          graph.setLimits(graph.minY(), graph.maxY()-10);
+          graph.draw(glcd);
+          a5b.clearButton(AnalogFiveButtons::BM_3);
+          break;
+        case 2:
+          graph.setLimits(graph.minY()+10, graph.maxY());
+          graph.draw(glcd);
+          a5b.clearButton(AnalogFiveButtons::BM_2);
+          break;
+        case 1:
+          graph.setLimits(graph.minY()-10, graph.maxY());
+          graph.draw(glcd);
+          a5b.clearButton(AnalogFiveButtons::BM_1);
+          break;
+      }
+    }
   }
 
-  if ( a5b.getState(AnalogFiveButtons::BM_5) && 
-       a5b.getState(AnalogFiveButtons::BM_3) ) {
-    digitalWrite(BACKLIGHT_LED, HIGH);
-  }
-
-  if ( a5b.buttonPressed(AnalogFiveButtons::BM_4) ) {
-    graph.setLimits(graph.minY(), graph.maxY()+10);
-    graph.draw(glcd);
-    a5b.clearButton(AnalogFiveButtons::BM_4);
-  }
-  if ( a5b.buttonPressed(AnalogFiveButtons::BM_3) ) {
-    graph.setLimits(graph.minY(), graph.maxY()-10);
-    graph.draw(glcd);
-    a5b.clearButton(AnalogFiveButtons::BM_3);
-  }
-  if ( a5b.buttonPressed(AnalogFiveButtons::BM_2) ) {
-    graph.setLimits(graph.minY()+10, graph.maxY());
-    graph.draw(glcd);
-    a5b.clearButton(AnalogFiveButtons::BM_2);
-  }
-  if ( a5b.buttonPressed(AnalogFiveButtons::BM_1) ) {
-    graph.setLimits(graph.minY()-10, graph.maxY());
-    graph.draw(glcd);
-    a5b.clearButton(AnalogFiveButtons::BM_1);
-  }
 
   unsigned long newtime = millis();
   int elapsed = newtime-prevtime;
@@ -156,16 +219,29 @@ void loop()
   if ( currentTime != lastTime ) {
     clock.readData();
     clock.printTime(timeStr);
-    glcd.drawstring(8, 0, timeStr);
+    glcd.drawstring(0, 0, timeStr);
     currentMinute = minute(now());
-//    if ( lastMinute != currentMinute ) {
+    if ( lastMinute != currentMinute ) {
       baro.readData();
-      sample.setPressure(baro.getPressureDeciPa());
-      sample.setTemperature(baro.getTemperature());
-      buffer.insert(sample, (long)currentTime);
+      temperatures[avgIndex] = baro.getTemperature();
+      pressures[avgIndex] = baro.getPressure();
+      avgIndex++;
+      if ( avgIndex == 8 ) avgIndex=0;
+      avgPressure = 0;
+      avgTemperature = 0;
+      for (int i=0; i<8; i++ ) { 
+        avgPressure += pressures[i];      
+        avgTemperature += temperatures[i];
+      }
+      avgPressure = avgPressure/80;
+      avgTemperature = avgTemperature/8;
+      sample.setPressure(avgPressure);
+      sample.setTemperature(avgTemperature);
+      dayBuffer.insert(sample, (long)currentTime);
+      weekBuffer.insert(sample, (long)currentTime);
       graph.draw(glcd);
       lastMinute = currentMinute; 
-//    }
+    }
     lastTime = currentTime;
   }
   
@@ -179,10 +255,15 @@ void loop()
     glcd.setpixel(0,0,1);
     glcd.setpixel(0,0,0);
     baro.readData();
-    baro.printTemperature(tempStr);
-    glcd.drawstring(8, 1, tempStr);
-    baro.printPressure(pressureStr);
-    glcd.drawstring(8, 2, pressureStr);
+    baro.printPressure(statusStr);
+    strcpy(statusStr+8, " /  ");
+    baro.printTemperature(statusStr+11);
+    strcpy(statusStr+17, " / ");
+    if ( graph.getBuffer() == &dayBuffer ) 
+      strcpy(statusStr+20, "D");
+    else 
+      strcpy(statusStr+20, "W");
+    glcd.drawstring(0, 1, statusStr);
     counter = 0;    
   }
 
