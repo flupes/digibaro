@@ -15,5 +15,6 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 # Create the executable
 add_program( DigitalBaro dbaro eepromUtils analog5b arduinolibs corearduino m)
+add_program( testFonts arduinolibs corearduino m)
 
 add_subdirectory ( tests )
