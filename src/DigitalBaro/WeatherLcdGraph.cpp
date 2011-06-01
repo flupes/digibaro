@@ -3,11 +3,11 @@
 #include "WeatherSample.h"
 
 #define GRAPH_Y_PIXELS 32
+#define GRAPH_LINE_OFFSET 3
 
-WeatherLcdGraph::WeatherLcdGraph(byte lineOffset) :
+WeatherLcdGraph::WeatherLcdGraph() :
   m_data(0),
-  m_graphY(lineOffset*8),
-  m_lineOffset(lineOffset)
+  m_graphY(GRAPH_LINE_OFFSET*8)
 {
   findExtremas();
 }
@@ -75,7 +75,7 @@ void WeatherLcdGraph::draw(ST7565 &lcd)
     for (uint16_t i=0; i<size; i++) {
       time = m_data->read(i, sample);
       pressure = sample.getPressure();
-      if ( pressure != 0xFFFF ) {
+      if ( pressure != 0xFFFF && pressure > m_minY ) {
         x = (uint8_t)(m_graphX+size-i-1);
         y = (uint8_t)((pressure-m_minY)/m_scale);
         if ( y > GRAPH_Y_PIXELS ) {
@@ -91,14 +91,16 @@ void WeatherLcdGraph::draw(ST7565 &lcd)
           lcd.setpixel(x, m_graphY+GRAPH_Y_PIXELS-j, 1);
       }
     }
+    // horizontal axis
     for (j=m_graphX; j<=LCDWIDTH; j++)
-      lcd.setpixel(j, m_graphY+GRAPH_Y_PIXELS, 1);
-    for (j=0; j<=GRAPH_Y_PIXELS; j++)
+      lcd.setpixel(j, m_graphY+GRAPH_Y_PIXELS-1, 1);
+    //vertical axis
+    for (j=0; j<GRAPH_Y_PIXELS; j++)
       lcd.setpixel(m_graphX-1, m_graphY+j, 1);
     char str[8];
     utoa(m_maxY, str, 10);
-    lcd.drawstring(0, m_lineOffset, str);
+    lcd.drawstring(0, GRAPH_LINE_OFFSET, str);
     utoa(m_minY, str, 10);
-    lcd.drawstring(0, m_lineOffset+3, str);
+    lcd.drawstring(0, GRAPH_LINE_OFFSET+3, str);
   }
 }
