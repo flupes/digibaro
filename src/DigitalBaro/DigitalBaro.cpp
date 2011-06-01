@@ -17,14 +17,15 @@ void loop();
 ST7565 glcd(9, 8, 7, 6, 5);
 Ds3231 clock(104);
 Bmp085 baro(0x77, 3);
-TimePermRingBuffer dayBuffer(0, 96, sizeof(WeatherData), 600, 8);
-TimePermRingBuffer weekBuffer(512, 96, sizeof(WeatherData), 5400, 1);
+TimePermRingBuffer dayBuffer(0, 96, sizeof(WeatherData), 60, 8);
+TimePermRingBuffer weekBuffer(512, 96, sizeof(WeatherData), 180, 1);
 boolean extendedBuffer;
 
 WeatherLcdGraph graph;
 
 AnalogFiveButtons a5b(A2, 5.0);
-uint16_t ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
+//uint16_t ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
+uint16_t ladder[6] = { 5010, 22000, 9320, 5010, 2090, 1038 };
 
 int temperatures[8];
 long pressures[8];
@@ -43,6 +44,26 @@ char blank[]="    ";
 
 boolean backlight;
 
+
+void printTime(unsigned long t)
+{
+  tmElements_t tm;
+  Serial.print(t, DEC);
+  breakTime(t, tm);
+  Serial.print(" -> ");
+  Serial.print(tm.Year, DEC); 
+  Serial.print("/");
+  Serial.print(tm.Month, DEC);
+  Serial.print("/");
+  Serial.print(tm.Day, DEC);
+  Serial.print(" -- ");
+  Serial.print(tm.Hour, DEC);
+  Serial.print(":");
+  Serial.print(tm.Minute, DEC);
+  Serial.print(":");
+  Serial.println(tm.Second, DEC);
+}
+
 void setup() {                
 
   // initialize and set the contrast to 0x18
@@ -57,8 +78,6 @@ void setup() {
   pinMode(BACKLIGHT_LED, OUTPUT);
   digitalWrite(BACKLIGHT_LED, HIGH);
   backlight = true;
-
-  setSyncProvider(Ds3231::getTimeSync);
 
   // For I2C
   Wire.begin();
@@ -78,51 +97,71 @@ void setup() {
   graph.setBuffer(&dayBuffer);
   extendedBuffer = false;
 
-  counter = 0;
-  prevtime = millis();
-
 //  Serial.print("day buffer storage size = ");
 //  Serial.println(dayBuffer.storageSize(), DEC);
 //  Serial.print("week buffer storage size = ");
 //  Serial.println(weekBuffer.storageSize(), DEC);
 
-//  delay(6000);
+  delay(6000);
 
-  time_t startTime = now();
-  Serial.print("start Time = ");
-  Serial.println(startTime, DEC);
+  setSyncProvider(Ds3231::getTimeSync);
+  
+  time_t startTime = clock.getRtcTime();
   tmElements_t tm;
-  unsigned long bufferTimeStamp = dayBuffer.lastTimeStamp();
-  if ( bufferTimeStamp == 0xFFFFFFFFul || 
-       startTime > bufferTimeStamp+dayBuffer.timeSpan() ) {
+  setTime(startTime);
+  Serial.print("start Time = ");
+  printTime(startTime);
+
+  counter = 0;
+  prevtime = millis();
+
+  for (byte i=0; i<2; i++) {
+    unsigned long bufferTimeStamp;
+    Serial.print("last ");
+    if ( 0 == i ) { 
+      bufferTimeStamp = dayBuffer.lastTimeStamp();
+      Serial.print("DAY");
+    }
+    else {
+      bufferTimeStamp = weekBuffer.lastTimeStamp();
+      Serial.print("WEEK");
+    }
+    Serial.print(" buffer time stamp = ");
+    printTime(bufferTimeStamp);
+
     breakTime(startTime, tm);
-    Serial.println(tm.Day, DEC);
-    Serial.println(tm.Hour, DEC);
-    Serial.println(tm.Minute, DEC);
-    Serial.println(tm.Second, DEC);
-    tm.Second = 0;
-    tm.Minute = 0;
-    byte hourOffset = dayBuffer.timeSpan()/3600;
-    if ( hourOffset > 0 ) {
-      if ( tm.Hour < hourOffset ) {
+
+    if ( bufferTimeStamp == 0xFFFFFFFFul || 
+         startTime > bufferTimeStamp+dayBuffer.timeSpan() ) {
+      tm.Second = 0;
+      tm.Minute = 0;
+      /*
+        byte hourOffset = dayBuffer.timeSpan()/3600;
+        if ( hourOffset > 0 ) {
+        if ( tm.Hour < hourOffset ) {
         tm.Day -= 1;
         tm.Hour += 24-hourOffset;
+        }
+        else {
+        tm.Hour -= hourOffset;
+        }
+        // if ( dayBuffer.timeSpan() % 3600 != 0 ) 
+        //   tm.Hour += 1;
+        }
+      */
+      startTime = makeTime(tm);
+      Serial.print("reset ");
+      if ( 0 == i ) {
+        dayBuffer.setTimeStamp(startTime);
+        Serial.print("DAY");
       }
       else {
-        tm.Hour -= hourOffset;
+        weekBuffer.setTimeStamp(startTime);
+        Serial.print("WEEK");
       }
-      // if ( dayBuffer.timeSpan() % 3600 != 0 ) 
-      //   tm.Hour += 1;
+      Serial.print(" buffer start time = ");
+      printTime(startTime);
     }
-    startTime = makeTime(tm);
-    dayBuffer.setTimeStamp(startTime);
-    weekBuffer.setTimeStamp(startTime);
-    Serial.print("set buffer start time = ");
-    Serial.println(startTime, DEC);
-    Serial.println(tm.Day, DEC);
-    Serial.println(tm.Hour, DEC);
-    Serial.println(tm.Minute, DEC);
-    Serial.println(tm.Second, DEC);
   }
 
   for (int i=0; i<8; i++) {
@@ -131,6 +170,8 @@ void setup() {
     pressures[i] = baro.getPressure();
     delay (25);
   }
+
+  graph.draw(glcd);
 
 }
 
@@ -203,15 +244,17 @@ void loop()
     }
   }
 
-
+  
   unsigned long newtime = millis();
   int elapsed = newtime-prevtime;
   String str(elapsed, DEC);
   str.toCharArray(elapsedStr, 8);
   prevtime = newtime;
 
-  glcd.drawstring(8, 7, blank);
-  glcd.drawstring(8, 7, elapsedStr);
+  glcd.drawstring(8, 4, blank);
+  glcd.drawstring(8, 4, elapsedStr);
+
+  boolean r = false;
 
   currentTime = now();
   //Serial.print("current time = ");
@@ -221,7 +264,7 @@ void loop()
     clock.printTime(timeStr);
     glcd.drawstring(0, 0, timeStr);
     currentMinute = minute(now());
-    if ( lastMinute != currentMinute ) {
+//    if ( lastMinute != currentMinute ) {
       baro.readData();
       temperatures[avgIndex] = baro.getTemperature();
       pressures[avgIndex] = baro.getPressure();
@@ -237,11 +280,12 @@ void loop()
       avgTemperature = avgTemperature/8;
       sample.setPressure(avgPressure);
       sample.setTemperature(avgTemperature);
-      dayBuffer.insert(sample, (long)currentTime);
-      weekBuffer.insert(sample, (long)currentTime);
-      graph.draw(glcd);
+      r = dayBuffer.insert(sample, (long)currentTime);
+      r = r || weekBuffer.insert(sample, (long)currentTime);
+      if ( r ) 
+        graph.draw(glcd);
       lastMinute = currentMinute; 
-    }
+//    }
     lastTime = currentTime;
   }
   
