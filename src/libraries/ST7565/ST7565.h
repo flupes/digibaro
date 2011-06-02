@@ -33,7 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define WHITE 0
 
 #define LCDWIDTH 128
-#define LCDHEIGHT 64
+//#define LCDHEIGHT 64
+#define LCDHEIGHT 56
 
 #define CMD_DISPLAY_OFF   0xAE
 #define CMD_DISPLAY_ON    0xAF
