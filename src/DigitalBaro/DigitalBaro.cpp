@@ -11,21 +11,20 @@
 #define BACKLIGHT_LED 3
 #define WAIT_LOOP 20
 
-//#include "WProgram.h"
 void setup();
 void loop();
 ST7565 glcd(9, 8, 7, 6, 5);
 Ds3231 clock(104);
 Bmp085 baro(0x77, 3);
-TimePermRingBuffer dayBuffer(0, 96, sizeof(WeatherData), 60, 8);
-TimePermRingBuffer weekBuffer(512, 96, sizeof(WeatherData), 180, 1);
+TimePermRingBuffer dayBuffer(0, 96, sizeof(WeatherData), 600, 8);
+TimePermRingBuffer weekBuffer(512, 96, sizeof(WeatherData), 3600, 1);
 boolean extendedBuffer;
 
 WeatherLcdGraph graph;
 
 AnalogFiveButtons a5b(A2, 5.0);
-//uint16_t ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
-uint16_t ladder[6] = { 5010, 22000, 9320, 5010, 2090, 1038 };
+uint16_t ladder[6] = { 4990, 22100, 9310, 4990, 2100, 1039 };
+//uint16_t ladder[6] = { 5010, 22000, 9320, 5010, 2090, 1038 };
 
 int temperatures[8];
 long pressures[8];
@@ -72,7 +71,6 @@ void setup() {
   // show splashscreen
   glcd.display(); 
   delay(500);
-  glcd.clear(); 
 
   // turn on backlight
   pinMode(BACKLIGHT_LED, OUTPUT);
@@ -102,7 +100,8 @@ void setup() {
 //  Serial.print("week buffer storage size = ");
 //  Serial.println(weekBuffer.storageSize(), DEC);
 
-  delay(6000);
+  delay(3000);
+  glcd.clear(); 
 
   setSyncProvider(Ds3231::getTimeSync);
   
@@ -133,22 +132,11 @@ void setup() {
 
     if ( bufferTimeStamp == 0xFFFFFFFFul || 
          startTime > bufferTimeStamp+dayBuffer.timeSpan() ) {
+      // Reset the time to something rounded
+      // this trivial method will work for buffer that
+      // are least 1h long (more likely for this application)
       tm.Second = 0;
       tm.Minute = 0;
-      /*
-        byte hourOffset = dayBuffer.timeSpan()/3600;
-        if ( hourOffset > 0 ) {
-        if ( tm.Hour < hourOffset ) {
-        tm.Day -= 1;
-        tm.Hour += 24-hourOffset;
-        }
-        else {
-        tm.Hour -= hourOffset;
-        }
-        // if ( dayBuffer.timeSpan() % 3600 != 0 ) 
-        //   tm.Hour += 1;
-        }
-      */
       startTime = makeTime(tm);
       Serial.print("reset ");
       if ( 0 == i ) {
@@ -207,10 +195,12 @@ void loop()
           && a5b.buttonPressed(AnalogFiveButtons::BM_1) ) {
       if ( extendedBuffer ) {
         graph.setBuffer(&dayBuffer);
+        graph.draw(glcd);
         extendedBuffer = false;
       }
       else {
         graph.setBuffer(&weekBuffer);
+        graph.draw(glcd);
         extendedBuffer = true;
       }
       a5b.clearButton(AnalogFiveButtons::BM_1);
@@ -254,7 +244,8 @@ void loop()
   glcd.drawstring(8, 4, blank);
   glcd.drawstring(8, 4, elapsedStr);
 
-  boolean r = false;
+  boolean rd = false;
+  boolean rw = false;
 
   currentTime = now();
   //Serial.print("current time = ");
@@ -280,16 +271,22 @@ void loop()
       avgTemperature = avgTemperature/8;
       sample.setPressure(avgPressure);
       sample.setTemperature(avgTemperature);
-      r = dayBuffer.insert(sample, (long)currentTime);
-      r = r || weekBuffer.insert(sample, (long)currentTime);
-      if ( r ) 
+      rd = dayBuffer.insert(sample, (long)currentTime);
+      rw = weekBuffer.insert(sample, (long)currentTime);
+      if ( rw ) {
+        Serial.print("insert value = ");
+        Serial.print(sample.getPressure(), DEC);
+        Serial.print(" into week buffer with timestamp = ");
+        printTime(currentTime);
+      }
+      if ( rd || rw ) 
         graph.draw(glcd);
       lastMinute = currentMinute; 
 //    }
     lastTime = currentTime;
   }
   
-  if (counter == 50) {
+  if (counter == 20) {
     /** @warning
         This is something to debug:
         if no "graphic" call to the glcd is made, then
