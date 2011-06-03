@@ -13,6 +13,20 @@
 
 void setup();
 void loop();
+/*
+  arg1 = SID = Serial Data In = Master Output Slave Input (MOSI)
+  arg2 = SCLK = Serial Input Clock (SCK)
+  arg3 = A0 = 
+  arg4 = RST = Reset
+  arg5 = CS = Chip Select = Slave Select (SS)
+
+SID pin = 9
+CLK pin = 8
+A0 pin  = 7
+CS pin  = 5
+RST pin = 6
+
+ */
 ST7565 glcd(9, 8, 7, 6, 5);
 Ds3231 clock(104);
 Bmp085 baro(0x77, 3);
@@ -65,6 +79,10 @@ void printTime(unsigned long t)
 
 void setup() {                
 
+  // For console debugging
+  Serial.begin(9600);
+  delay(1000);
+
   // initialize and set the contrast to 0x18
   glcd.begin(0x18);
 
@@ -81,9 +99,6 @@ void setup() {
   Wire.begin();
 
   baro.calibrate();
-
-  // For console debugging
-  Serial.begin(9600);
 
   // Configure the ladder
   a5b.setLadder(3.3f, ladder);
