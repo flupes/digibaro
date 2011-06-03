@@ -1,0 +1,39 @@
+#######################################
+# Syntax Coloring Map For Dogm
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Dogm	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+start	KEYWORD2
+next	KEYWORD2
+setPixel	KEYWORD2
+clrPixel	KEYWORD2
+setVLine	KEYWORD2
+clrVLine	KEYWORD2
+xorVLine	KEYWORD2
+setBox	KEYWORD2
+clrBox	KEYWORD2
+xorBox	KEYWORD2
+setFont	KEYWORD2
+setXY	KEYWORD2
+drawChar	KEYWORD2
+drawStr	KEYWORD2
+setSize	KEYWORD2
+drawPoint	KEYWORD2
+drawLine	KEYWORD2
+drawArc	KEYWORD2
+
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

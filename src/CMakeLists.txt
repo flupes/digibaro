@@ -23,3 +23,5 @@ add_subdirectory( libraries )
 add_subdirectory( EepromUtils )
 add_subdirectory( AnalogFiveButtons )
 add_subdirectory( DigitalBaro )
+add_subdirectory( dogmTests )
+
