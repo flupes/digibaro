@@ -110,6 +110,8 @@ class ST7565 {
 		  const uint8_t *bitmap, uint8_t w, uint8_t h,
 		  uint8_t color);
 
+  void info();
+
  private:
   int8_t sid, sclk, a0, rst, cs;
   void spiwrite(uint8_t c);

@@ -433,6 +433,15 @@ void ST7565::st7565_init(void) {
   // set up a bounding box for screen updates
 
   updateBoundingBox(0, 0, LCDWIDTH-1, LCDHEIGHT-1);
+
+}
+
+void ST7565::info() {
+  Serial.print("SID pin = "); Serial.println(sid, DEC);
+  Serial.print("CLK pin = "); Serial.println(sclk, DEC);
+  Serial.print("A0 pin  = "); Serial.println(a0, DEC);
+  Serial.print("CS pin  = "); Serial.println(cs, DEC);
+  Serial.print("RST pin = "); Serial.println(rst, DEC);
 }
 
 inline void ST7565::spiwrite(uint8_t c) {
