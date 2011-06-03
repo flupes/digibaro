@@ -60,7 +60,7 @@
 
 // a handy reference to where the pages are on the screen
 //const uint8_t pagemap[] = { 3, 2, 1, 0, 7, 6, 5, 4 };
-const uint8_t pagemap[] = { 4, 5, 6, 7, 0, 1, 2, 3 };
+//const uint8_t pagemap[] = { 4, 5, 6, 7, 0, 1, 2, 3 };
 //const uint8_t pagemap[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
 unsigned char dog_page_buffer[DOG_PAGE_SIZE];
@@ -147,10 +147,11 @@ static void dog_init_display(void)
   digitalWrite(dog_spi_pin_rst, HIGH);
   
   dog_spi_out(0xA3);            // LCD bias select to 1/7 (1/9) does NOT work!
+
   dog_spi_out(0xA1);            // ACD set to reverse
   dog_spi_out(0xC0);            // Common output mode to normal
   dog_spi_out(0xA6);            // display normal (bit=0 -> pixel off)
-  dog_spi_out(0x40);            // Set display line start to 0
+  dog_spi_out(0x60);            // Set display line start to 20 !! (pages messed up)
 
   dog_spi_out(0x28 | 0x4);      // turn on voltage converter (VC=1, VR=0, VF=0)
   dog_Delay(50);                // wait for 50% rising
@@ -359,16 +360,12 @@ static void dog_transfer_sub_page(uint8_t page, uint8_t  offset)
   /* set write position */
   dog_cmd_mode();
 #ifdef DOGXL160_HW_GR
-  dog_spi_out(0x060 | (page) );		/* select current page  (UC1610)*/
-  dog_spi_out(0x010 );		/* set upper 4 bit of the col adr to 0 */
+  dog_spi_out(0x060 | (page) );                 /* select current page  (UC1610)*/
+  dog_spi_out(0x010 );                          /* set upper 4 bit of the col adr to 0 */
   dog_spi_result = dog_spi_out(0x000 );		/* set lower 4 bit of the col adr to 0 */
 #else
-#ifndef ADA_ST7565P
   dog_spi_out(0x0b0 | page );           	/* select current page (ST7565R) */
-#else
-  dog_spi_out(0x0b0 | pagemap[page] );		/* select current page (ST7565P) */
-#endif
-  dog_spi_out(0x010 );		/* set upper 4 bit of the col adr to 0 */
+  dog_spi_out(0x010 );                          /* set upper 4 bit of the col adr to 0 */
   dog_spi_result = dog_spi_out(0x000 );		/* set lower 4 bit of the col adr to 0 */
 #endif
   
