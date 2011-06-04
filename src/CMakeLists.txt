@@ -20,6 +20,7 @@ add_subdirectory( cores )
 add_subdirectory( libraries )
 
 # Add project specific subdirs
+add_subdirectory( experiments )
 add_subdirectory( EepromUtils )
 add_subdirectory( AnalogFiveButtons )
 add_subdirectory( DigitalBaro )
