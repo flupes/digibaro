@@ -58,11 +58,6 @@
 
 #include <wiring.h>	/* arduino pinMode */
 
-// a handy reference to where the pages are on the screen
-//const uint8_t pagemap[] = { 3, 2, 1, 0, 7, 6, 5, 4 };
-//const uint8_t pagemap[] = { 4, 5, 6, 7, 0, 1, 2, 3 };
-//const uint8_t pagemap[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-
 unsigned char dog_page_buffer[DOG_PAGE_SIZE];
 uint8_t dog_curr_page = 0;	/* 0...DOG_PAGE_CNT-1 */
 uint8_t dog_min_y = 0;
@@ -71,7 +66,11 @@ uint8_t dog_max_y = DOG_PAGE_HEIGHT-1;
 
 uint8_t dog_spi_pin_a0 = PIN_A0_DEFAULT;
 uint8_t dog_spi_pin_cs = PIN_SS;	/* arduino chip select pin, defaults to the hardware pin */
+
+#ifdef ADA_ST7565P
 uint8_t dog_spi_pin_rst = 6;
+#define ST7565P_STARTBYTES 1
+#endif
 
 uint8_t dog_spi_result = 0;		/* last value returned from SPI system (after executing the picture loop) */
 
@@ -138,7 +137,10 @@ static void dog_init_display(void)
   dog_spi_enable_client();
   dog_Delay(10);
   dog_cmd_mode();
+
 #ifdef ADA_ST7565P
+#warning should see this
+  // Reset procedure taken from Adafruit ST7565 library
   // toggle RST low to reset; CS low so it'll listen to us
   if (dog_spi_pin_cs > 0)
     digitalWrite(dog_spi_pin_cs, LOW);
@@ -151,14 +153,12 @@ static void dog_init_display(void)
   dog_spi_out(0xA1);            // ACD set to reverse
   dog_spi_out(0xC0);            // Common output mode to normal
   dog_spi_out(0xA6);            // display normal (bit=0 -> pixel off)
-  dog_spi_out(0x60);            // Set display line start to 20 !! (pages messed up)
+  dog_spi_out(0x40 | 0x20);     // Set display line start to 32 !! (pages messed up)
 
   dog_spi_out(0x28 | 0x4);      // turn on voltage converter (VC=1, VR=0, VF=0)
   dog_Delay(50);                // wait for 50% rising
-
   dog_spi_out(0x28 | 0x6);      // turn on voltage regulator (VC=1, VR=1, VF=0)
   dog_Delay(50);                // wait >=50ms
-
   dog_spi_out(0x28 | 0x7);      // turn on voltage follower (VC=1, VR=1, VF=1)
   dog_Delay(10);                // wait
 
@@ -166,11 +166,11 @@ static void dog_init_display(void)
 
   dog_spi_out(0x81);            // set contrast
   dog_spi_out(0x18);            // contrast value
-  dog_spi_out(0xAC);            // indicator on
+  //dog_spi_out(0xAC);            // indicator on
   dog_spi_out(0xAF);            // display on
-
-#else
+#endif
   /* mostly taken from the EA dogm description */
+
 #ifdef DOGM128_HW
   dog_spi_out(0x040);		/* set display start line to 0 */
   dog_spi_out(0x0a1);		/* ADC set to reverse */
@@ -186,7 +186,6 @@ static void dog_init_display(void)
   dog_spi_out(0x0ac);		/* indicator */
   dog_spi_out(0x000);		/* disable */
   dog_spi_out(0x0af);		/* display on */
-#endif
 #endif
 
 #ifdef DOGM132_HW
@@ -364,9 +363,14 @@ static void dog_transfer_sub_page(uint8_t page, uint8_t  offset)
   dog_spi_out(0x010 );                          /* set upper 4 bit of the col adr to 0 */
   dog_spi_result = dog_spi_out(0x000 );		/* set lower 4 bit of the col adr to 0 */
 #else
-  dog_spi_out(0x0b0 | page );           	/* select current page (ST7565R) */
+  dog_spi_out(0x0b0 | page );           	/* select current page (ST7565R/P) */
+#ifndef ADA_ST7565P
   dog_spi_out(0x010 );                          /* set upper 4 bit of the col adr to 0 */
   dog_spi_result = dog_spi_out(0x000 );		/* set lower 4 bit of the col adr to 0 */
+#else
+  dog_spi_out( 0x10 );                          /* set upper 4 bits of the col adr to 0 */
+  dog_spi_out( 0x00 | 0x03 );                   /* set lower 4 bits of the col adr to 3 ! */ 
+#endif
 #endif
   
   /* send a complete page */

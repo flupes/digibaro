@@ -39,6 +39,7 @@
     DOGS102_HW		DOGS102 Display
     DOGM132_HW		DOGM132 Display
     DOGXL60_HW		DOGXL160 Display
+    ADA_ST7565P         Adafruit Graphics LCD based on the ST7565P
     nothing defined		defaults to DOGM128 Display
     
 */
@@ -54,8 +55,7 @@
 
 //#define DOG_DOUBLE_MEMORY		/* uncomment for speed improvement */
 
-#define DOGM128_HW				/* uncomment for the DOGM128 display */
-#define ADA_ST7565P
+//#define DOGM128_HW				/* uncomment for the DOGM128 display */
 //#define DOGS102_HW				/* uncomment for the DOGS102 display */
 //#define DOGM132_HW				/* uncomment for the DOGM132 display */
 //#define DOGXL160_HW_BW			/* uncomment for the DOGXL160 display, black & white mode */
@@ -65,7 +65,7 @@
 /* End: User Configuration */
 /*=========================================================================*/
 
-#if !defined DOGM128_HW && !defined DOGM132_HW && !defined DOGS102_HW && !defined DOGXL160_HW_BW  && !defined DOGXL160_HW_GR
+#if !defined ADA_ST7565P && !defined DOGM128_HW && !defined DOGM132_HW && !defined DOGS102_HW && !defined DOGXL160_HW_BW  && !defined DOGXL160_HW_GR
 /* #define DOGM128_HW */
 /* print error message, please uncomment one of the displays above */
 #error LCD model is not defined. Define your LCD in dogm128.h.
@@ -105,6 +105,11 @@
 #endif
 
 /* setings for the various DOG displays */
+#ifdef ADA_ST7565P
+#define DOG_WIDTH 128
+#define DOG_HEIGHT 64
+#endif
+
 #ifdef DOGM128_HW
 #define DOG_WIDTH 128
 #define DOG_HEIGHT 64
@@ -165,8 +170,9 @@ extern uint8_t dog_max_y;
 
 extern uint8_t dog_spi_pin_a0;
 extern uint8_t dog_spi_pin_cs;	/* arduino chip select pin */
+
 #ifdef ADA_ST7565P
-extern uint8_t dog_spi_pin_rst; /* ST7565 reset pin */
+extern uint8_t dog_spi_pin_rst; /* ST7565P reset pin */
 #endif
 
 extern uint8_t dog_spi_result;		/* last value returned from SPI system (after executing the picture loop) */

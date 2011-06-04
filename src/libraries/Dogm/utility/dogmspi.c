@@ -417,6 +417,8 @@ unsigned char dog_spi_out(unsigned char data)
   return  SPDR;
 #else
   shiftOut(PIN_MOSI, PIN_SCK, MSBFIRST, data);
+  // not sure what we should return here...
+  // luckily, nothing upstream ever seems to use the return value!
   return data;
 #endif
 }
