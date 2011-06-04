@@ -21,6 +21,7 @@ foreach(dir Dogm Dogm/utility)
 	list(APPEND libsfiles ${tmpfiles}) 
 	include_directories( ./${dir} )
 endforeach(dir)
+add_definitions( -DADA_ST7565P )
 
 message(STATUS "libspath=${libspath}")
 message(STATUS "libsfiles=${libsfiles}")
