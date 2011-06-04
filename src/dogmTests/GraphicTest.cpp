@@ -90,22 +90,28 @@ void paget()
    dogm.setBox(0, 0, 31, 15);
    dogm.clrBox(1, 1, 30, 14);
    dogm.setXY(2, 2);
-   dogm.drawStr("(0, 0)");
+   dogm.drawStr("0,0");
 
    dogm.setBox(32, 16, 63, 31);
    dogm.clrBox(33, 17, 62, 30);
-   dogm.setXY(43, 18);
-   dogm.drawStr("(32, 16)");
+   dogm.setXY(34, 18);
+   dogm.drawStr("32,16");
 
    dogm.setBox(64, 32, 95, 47);
    dogm.clrBox(65, 33, 94, 46);
    dogm.setXY(66, 34);
-   dogm.drawStr("(64, 32)");
+   dogm.drawStr("64,32");
 
    dogm.setBox(96, 48, 127, 63);
    dogm.clrBox(97, 49, 126, 62);
    dogm.setXY(98, 50);
-   dogm.drawStr("(96,48)");
+   dogm.drawStr("96,48");
+
+   dogm.setVLine(0, 56, 63);
+   dogm.setVLine(127, 0, 7);
+   dogm.setHLine(0, 7, 63);
+   dogm.setHLine(120, 127, 0);
+   dogm.drawLine(0, 63, 127, 0);
 }
 
 void page0()
