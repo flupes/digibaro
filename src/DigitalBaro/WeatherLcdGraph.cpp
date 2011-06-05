@@ -9,13 +9,14 @@ WeatherLcdGraph::WeatherLcdGraph() :
   m_data(0),
   m_graphY(GRAPH_LINE_OFFSET*8)
 {
-  findExtremas();
+  // do nothing: there is no buffer assigned yet!
 }
 
 void WeatherLcdGraph::setBuffer(TimePermRingBuffer *buf)
 {
   m_data = buf;
   m_graphX = LCDWIDTH - m_data->bufferSize();
+  findExtremas();
 }
 
 TimePermRingBuffer * WeatherLcdGraph::getBuffer()
@@ -30,12 +31,16 @@ void WeatherLcdGraph::setLimits(int16_t min, int16_t max)
   m_scale = (max-min)/(float)GRAPH_Y_PIXELS;
 }
 
-int16_t WeatherLcdGraph::minY() {
-  return m_minY;
+uint16_t WeatherLcdGraph::getMinPressure(long *timestamp)
+{
+  if ( 0 != timestamp ) *timestamp = m_minPressTime;
+  return m_minPressure;
 }
 
-int16_t WeatherLcdGraph::maxY() {
-  return m_maxY;
+uint16_t WeatherLcdGraph::getMaxPressure(long *timestamp)
+{
+  if ( 0 != timestamp ) *timestamp = m_maxPressTime;
+  return m_maxPressure;
 }
 
 void WeatherLcdGraph::findExtremas()

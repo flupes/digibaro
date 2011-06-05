@@ -13,9 +13,11 @@ public:
 
   void setLimits(int16_t min, int16_t max);
 
-  int16_t minY();
+  int16_t minY() { return m_minY; }
+  int16_t maxY() { return m_maxY; }
 
-  int16_t maxY();
+  uint16_t getMinPressure(long *timestamp=0);
+  uint16_t getMaxPressure(long *timestamp=0);
 
   void draw(ST7565 &lcd);
 
