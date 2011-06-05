@@ -36,6 +36,9 @@ unsigned long prevtime;
 time_t currentTime;
 time_t lastTime;
 
+int avgTemperature;
+long avgPressure;
+
 char statusStr[24];
 char timeStr[24];
 char elapsedStr[4];
@@ -46,10 +49,10 @@ boolean backlight;
 
 void printTime(unsigned long t)
 {
-#ifdef SERIAL_DEBUG
   tmElements_t tm;
-  Serial.print(t, DEC);
   breakTime(t, tm);
+#ifdef SERIAL_DEBUG
+  Serial.print(t, DEC);
   Serial.print(" -> ");
   Serial.print(tm.Year, DEC); 
   Serial.print("/");
@@ -113,6 +116,7 @@ void setup() {
 
   counter = 0;
   prevtime = millis();
+  unsigned long bufferTimeStamp;
 
   for (byte i=0; i<2; i++) {
 
@@ -121,7 +125,6 @@ void setup() {
        brand new buffer or historic data too old
        for current buffers
     */
-    unsigned long bufferTimeStamp;
 #ifdef SERIAL_DEBUG
     Serial.print("last ");
 #endif
@@ -175,6 +178,16 @@ void setup() {
     }
   }
 
+  /*
+    Get some reasonable reading of the current pressure
+   */
+  for (int i=0; i<8; i++) {
+    baro.readData();
+    temperatures[i] = baro.getTemperature();
+    pressures[i] = baro.getPressure();
+    delay (50);
+  }
+
   /* 
      Set the graph limits: only for the startup...
      After we should keep whatever the user choose
@@ -185,21 +198,30 @@ void setup() {
      The limits are rounded to 2hPa below and above the min/max
   */
   graph.setBuffer(&weekBuffer);
+  bufferTimeStamp = weekBuffer.lastTimeStamp();
   uint16_t min = graph.getMinPressure();
   uint16_t max = graph.getMaxPressure();
+  if ( bufferTimeStamp == 0xFFFFFFFFul || 
+       startTime > bufferTimeStamp+weekBuffer.timeSpan() ||
+       (max-min) < 70 ) {
+    // Scenario when there is no historical data available,
+    // or if too few samples are available in the buffer 
+    // (the range will be really small):
+    // use limits centered on the current pressure
+    avgPressure = 0;
+    for (int i=0; i<8; i++ ) { 
+      avgPressure += pressures[i];      
+    }
+    avgPressure = avgPressure / 80;
+    min = avgPressure - 3;
+    max = avgPressure + 3;
+  }
   min = (min-4)/20; min = min*20;
   max = (max+16)/20; max = max*20;
   graph.setLimits(min, max);
   /* Now start with the day buffer */
   graph.setBuffer(&dayBuffer);
   extendedBuffer = false;
-
-  for (int i=0; i<8; i++) {
-    baro.readData();
-    temperatures[i] = baro.getTemperature();
-    pressures[i] = baro.getPressure();
-    delay (25);
-  }
 
   graph.draw(glcd);
 
@@ -211,15 +233,12 @@ void loop()
   static byte lastMinute = 0;
   static byte avgIndex = 0;
   WeatherSample sample;
-  int avgTemperature;
-  long avgPressure;
   //glcd.clear();
 
   a5b.update();
 
   if ( a5b.getState(AnalogFiveButtons::BM_5) ) {
-
-    // First test two button press
+    // First test two button press: BM_5 + BM_3 or BM_4
 
     if ( a5b.buttonPressed(AnalogFiveButtons::BM_4) ) {
       digitalWrite(BACKLIGHT_LED, LOW);
@@ -232,9 +251,10 @@ void loop()
     } 
 
   }
-  else {
+  else {    
     if  ( a5b.getState(AnalogFiveButtons::BM_2) 
           && a5b.buttonPressed(AnalogFiveButtons::BM_1) ) {
+      // Two buttons: BM_2 + BM1
       if ( extendedBuffer ) {
         graph.setBuffer(&dayBuffer);
         graph.draw(glcd);
@@ -245,11 +265,11 @@ void loop()
         graph.draw(glcd);
         extendedBuffer = true;
       }
+      a5b.clearButton(AnalogFiveButtons::BM_2);
       a5b.clearButton(AnalogFiveButtons::BM_1);
     }
  
     else {
-
       // Then single button press
       switch ( a5b.getPressedState() ) {
         case 8:
