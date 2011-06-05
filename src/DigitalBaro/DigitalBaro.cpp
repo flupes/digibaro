@@ -46,6 +46,7 @@ boolean backlight;
 
 void printTime(unsigned long t)
 {
+#ifdef SERIAL_DEBUG
   tmElements_t tm;
   Serial.print(t, DEC);
   breakTime(t, tm);
@@ -61,6 +62,7 @@ void printTime(unsigned long t)
   Serial.print(tm.Minute, DEC);
   Serial.print(":");
   Serial.println(tm.Second, DEC);
+#endif
 }
 
 void setup() {                
@@ -91,10 +93,6 @@ void setup() {
   a5b.removeState(18);
   a5b.setTiming(20, 3);
 
-  graph.setLimits(10100, 10200);
-  graph.setBuffer(&dayBuffer);
-  extendedBuffer = false;
-
 //  Serial.print("day buffer storage size = ");
 //  Serial.println(dayBuffer.storageSize(), DEC);
 //  Serial.print("week buffer storage size = ");
@@ -108,25 +106,41 @@ void setup() {
   time_t startTime = clock.getRtcTime();
   tmElements_t tm;
   setTime(startTime);
+#ifdef SERIAL_DEBUG
   Serial.print("start Time = ");
   printTime(startTime);
+#endif
 
   counter = 0;
   prevtime = millis();
 
   for (byte i=0; i<2; i++) {
+
+    /* 
+       Generate a correct start time (round) if
+       brand new buffer or historic data too old
+       for current buffers
+    */
     unsigned long bufferTimeStamp;
+#ifdef SERIAL_DEBUG
     Serial.print("last ");
+#endif
     if ( 0 == i ) { 
       bufferTimeStamp = dayBuffer.lastTimeStamp();
+#ifdef SERIAL_DEBUG
       Serial.print("DAY");
+#endif
     }
     else {
       bufferTimeStamp = weekBuffer.lastTimeStamp();
+#ifdef SERIAL_DEBUG
       Serial.print("WEEK");
+#endif
     }
+#ifdef SERIAL_DEBUG
     Serial.print(" buffer time stamp = ");
     printTime(bufferTimeStamp);
+#endif
 
     breakTime(startTime, tm);
 
@@ -138,19 +152,47 @@ void setup() {
       tm.Second = 0;
       tm.Minute = 0;
       startTime = makeTime(tm);
+#ifdef SERIAL_DEBUG
       Serial.print("reset ");
+#endif
       if ( 0 == i ) {
         dayBuffer.setTimeStamp(startTime);
+#ifdef SERIAL_DEBUG
         Serial.print("DAY");
+#endif
       }
       else {
         weekBuffer.setTimeStamp(startTime);
+#ifdef SERIAL_DEBUG
         Serial.print("WEEK");
+#endif
       }
+#ifdef SERIAL_DEBUG
       Serial.print(" buffer start time = ");
       printTime(startTime);
+#endif
+            
     }
   }
+
+  /* 
+     Set the graph limits: only for the startup...
+     After we should keep whatever the user choose
+     We only search the week buffer: it is really unlikely
+     that the day buffer present a peek that
+     was not captured in the week buffer...
+
+     The limits are rounded to 2hPa below and above the min/max
+  */
+  graph.setBuffer(&weekBuffer);
+  uint16_t min = graph.getMinPressure();
+  uint16_t max = graph.getMaxPressure();
+  min = (min-4)/20; min = min*20;
+  max = (max+16)/20; max = max*20;
+  graph.setLimits(min, max);
+  /* Now start with the day buffer */
+  graph.setBuffer(&dayBuffer);
+  extendedBuffer = false;
 
   for (int i=0; i<8; i++) {
     baro.readData();
@@ -273,12 +315,14 @@ void loop()
       sample.setTemperature(avgTemperature);
       rd = dayBuffer.insert(sample, (long)currentTime);
       rw = weekBuffer.insert(sample, (long)currentTime);
+#ifdef SERIAL_DEBUG
       if ( rw ) {
         Serial.print("insert value = ");
         Serial.print(sample.getPressure(), DEC);
         Serial.print(" into week buffer with timestamp = ");
         printTime(currentTime);
       }
+#endif
       if ( rd || rw ) 
         graph.draw(glcd);
       lastMinute = currentMinute; 
