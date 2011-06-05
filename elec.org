@@ -107,12 +107,13 @@ Future: program library to use left side of display as a soft meny
  - Excellent user manual
  - 1 day and 5 day history
 ** Size or data samples
-Max pixel in width = 128
-Probably should have 2 pixel per bar, but this is to evaluate
-Desire 3 displays: 5 days - 1 day (~36h better) - 3 jours
-Pressure can be coded on a int (2 bytes)
-60 measures x 2 bytes x 3 screen = 360 bytes
--> already a good part of the eeprom + good chunk of RAM is we want to display fast
+*** First idea
+    Max pixel in width = 128
+    Probably should have 2 pixel per bar, but this is to evaluate
+    Desire 3 displays: 5 days - 1 day (~36h better) - 3 jours
+    Pressure can be coded on a int (2 bytes)
+    60 measures x 2 bytes x 3 screen = 360 bytes
+    -> already a good part of the eeprom + good chunk of RAM is we want to display fast
 *** Another option:
  - 1 sample every 3h x 7 days -> 56 points
  - 1 sample every 1h x 36 h -> 36 points
@@ -157,6 +158,57 @@ Savings if we do not overlap the buffers (there is redundancy in the data):
 -> total of 28 samples -> ~20% memory saving (or 20% longer time span)
 => for a first implementation this is not really interesting and would 
 complicate the matter quite a bit
+*** Current solution
+ - Use only 2 graphs / sampling of data: it simplifies the code and the
+   user interface
+ - We should not use the full width of the lcd because we need scale labels
+ - 1 px per sample looks good (given that we can store enough
+ - 96px graph width x 32px height looks good
+ - If shrinking the data sample to fit on 4 bytes, we can get 2 buffers of
+   96 samples
+*** Detail of data storage
+**** Single sample
+  - 16 bits for pressure: store deciPascal rather than full resolution Pa
+  - 10 bits for 1 temperature reading (drop the outside temperature for
+    now: the wireless receiver will add enough complexity that we could
+    afford more storage at this point): -40degC -> +60degC with 0.1deg res.
+  - 6 bits for humidity: 64 level ~ 2% resolution
+**** Buffers
+  - 1 day buffer + 1 week buffer of 96 samples each
+  - week buffer uses direct EEPROM: 392 bytes\\
+    96 samples x 4 byte (data sample) + 4 (timestamp) + 4 (indexes)
+  - day buffer uses Endurance EEPROM: 512 bytes for endurance 8\\
+    st = status / ix = index / ts = timestamp\\
+    8(endur) x ( 4(st)+4(ix) + 4(st)+4(ts) ) + 96 samples x 4
+  - 392 + 512 leaves 120 bytes to stores other info (like extremas +
+    setting)
+  - 6min minimal time interval -> 10 samples / h -> 87600 samples / year\\
+    8 times endurance -> 8E6 writes -> 9.1 years of continuous operation
+**** Time Coverage
+| sampling period | time span with 96 sample buffer |
+|-----------------+---------------------------------|
+| 6 min           | 16 h                            |
+| 15 min          | 24 h                            |
+| 20 min          | 32 h                            |
+| 1 h (60min)     | 4 days (96h)                    |
+| 1 1/2h (90min)  | 6 days                          |
+| 2 h (120min)    | 8 days                          |
+** Tasks
+*** Hardware
+*** Infrastructure
+**** CMake build system for Arduino projects
+**** Graphic library for Serial LCD
+***** Adaptation of the DOGM128 library to the Adafruit ST7565P
+      :LOGBOOK:
+      CLOCK: [2011-06-02 Thu 21:00]--[2011-06-03 Fri 00:00]
+      CLOCK: [2011-06-03 Fri 21:00]--[2011-06-04 Sat 00:00]
+      :END:
+*** Coding
+**** AnalogFiveButtons
+**** Eeprom Utils
+**** User interface
+**** Graph
+**** Sensor
 * Interesting products
 ** Terminal adapters for the Arduino
 *** [[http://store.gravitech.us/teadforarna.html][Bed for the Nano]]
