@@ -201,9 +201,24 @@ void setup() {
   bufferTimeStamp = weekBuffer.lastTimeStamp();
   uint16_t min = graph.getMinPressure();
   uint16_t max = graph.getMaxPressure();
+#ifdef SERIAL_DEBUG
+  Serial.print("week buffer last timestamp=");
+  Serial.println(bufferTimeStamp, DEC);
+  Serial.print("current time=");
+  Serial.println(startTime, DEC);
+  Serial.print("min=");
+  Serial.println(min, DEC);
+  Serial.print("max=");
+  Serial.println(max, DEC);
+#endif
   if ( bufferTimeStamp == 0xFFFFFFFFul || 
        startTime > bufferTimeStamp+weekBuffer.timeSpan() ||
-       (max-min) < 70 ) {
+       (max-min) < 60 ) {
+#ifdef SERIAL_DEBUG
+    Serial.println( bufferTimeStamp == 0xFFFFFFFFul ? "cond1" : "!cond1");
+    Serial.println( startTime > bufferTimeStamp+weekBuffer.timeSpan() ? "cond2" : "!cond2");
+    Serial.println( (max-min) < 60 ? "cond3" : "!cond3");
+#endif
     // Scenario when there is no historical data available,
     // or if too few samples are available in the buffer 
     // (the range will be really small):
@@ -213,8 +228,8 @@ void setup() {
       avgPressure += pressures[i];      
     }
     avgPressure = avgPressure / 80;
-    min = avgPressure - 3;
-    max = avgPressure + 3;
+    min = avgPressure - 30;
+    max = avgPressure + 20;
   }
   min = (min-4)/20; min = min*20;
   max = (max+16)/20; max = max*20;
