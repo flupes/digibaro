@@ -28,6 +28,28 @@ time_t Ds3231::getRtcTime()
   return ( makeTime(m_time) );
 }
 
+boolean Ds3231::enableSquareWave(byte freq)
+{
+  if (freq > 3) return false;
+  Wire.beginTransmission(m_rtcAddress);
+  // bit 2 = 0 -> enable
+  // bit 3 & 4 -> frequency
+  freq = freq << 2;
+  Wire.send( 0x0E );
+  Wire.send( 0x18 );
+  Wire.endTransmission();
+}
+
+void Ds3231::disableSquareWave()
+{
+  Wire.beginTransmission(m_rtcAddress);
+  // bit 2 = 1 -> disable
+  // restore bit 3 & 4 to default (1)
+  Wire.send( 0x0E );
+  Wire.send( 0x1C );
+  Wire.endTransmission();
+}
+
 void Ds3231::readData()
 {
   // send request to receive data starting at register 0

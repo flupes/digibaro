@@ -19,8 +19,16 @@ public:
 
   void printTime(char str[]);
   
-protected:
+  boolean enableSquareWave(byte freq);
+  void disableSquareWave();
 
+  //squarewave frequencies:
+  static const byte SQW_1Hz=0x00;   // 1Hz
+  static const byte SQW_1kHz=0x01;  // 1024Hz
+  static const byte SQW_4kHz=0x02;  // 4069Hz
+  static const byte SQW_8kHz=0x03;  // 8192Hz
+
+protected:
   static Ds3231 *m_this;
 
   char *printTwoDec(byte val, char *ptr);
