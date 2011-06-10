@@ -195,9 +195,11 @@ void setup() {
   Serial.print("max=");
   Serial.println(max, DEC);
 #endif
-  if ( bufferTimeStamp == 0xFFFFFFFFul || 
-       startTime > bufferTimeStamp+weekBuffer.timeSpan() ||
-       (max-min) < 60 ) {
+  if ( bufferTimeStamp == 0xFFFFFFFFul ||       // buffer without timestamp
+       startTime > bufferTimeStamp+weekBuffer.timeSpan() || // no more historical data
+       (max-min) < 60 ||                        // range too small
+       min > max )                              // no valid limits
+  {
 #ifdef SERIAL_DEBUG
     Serial.println( bufferTimeStamp == 0xFFFFFFFFul ? "cond1" : "!cond1");
     Serial.println( startTime > bufferTimeStamp+weekBuffer.timeSpan() ? "cond2" : "!cond2");
