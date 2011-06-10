@@ -117,61 +117,45 @@ void setup() {
   counter = 0;
   prevtime = millis();
   unsigned long bufferTimeStamp;
+  TimePermRingBuffer *buff;
 
   for (byte i=0; i<2; i++) {
 
     /* 
        Generate a correct start time (round) if
        brand new buffer or historic data too old
-       for current buffers
+       for current buffers.
     */
+    if ( 1 == i ) { 
+      buff = &dayBuffer;
 #ifdef SERIAL_DEBUG
-    Serial.print("last ");
-#endif
-    if ( 0 == i ) { 
-      bufferTimeStamp = dayBuffer.lastTimeStamp();
-#ifdef SERIAL_DEBUG
-      Serial.print("DAY");
+      Serial.print("last DAY");
 #endif
     }
     else {
-      bufferTimeStamp = weekBuffer.lastTimeStamp();
+      buff = &weekBuffer;
 #ifdef SERIAL_DEBUG
-      Serial.print("WEEK");
+      Serial.print("last WEEK");
 #endif
     }
+    bufferTimeStamp = buff->lastTimeStamp();
 #ifdef SERIAL_DEBUG
     Serial.print(" buffer time stamp = ");
     printTime(bufferTimeStamp);
 #endif
 
-    breakTime(startTime, tm);
-
     if ( bufferTimeStamp == 0xFFFFFFFFul || 
-         startTime > bufferTimeStamp+dayBuffer.timeSpan() ) {
+         startTime > buff->timeSpan() ) {
       // Reset the time to something rounded
       // this trivial method will work for buffer that
       // are least 1h long (more likely for this application)
+      breakTime(startTime, tm);
       tm.Second = 0;
       tm.Minute = 0;
       startTime = makeTime(tm);
+      buff->setTimeStamp(startTime);
 #ifdef SERIAL_DEBUG
-      Serial.print("reset ");
-#endif
-      if ( 0 == i ) {
-        dayBuffer.setTimeStamp(startTime);
-#ifdef SERIAL_DEBUG
-        Serial.print("DAY");
-#endif
-      }
-      else {
-        weekBuffer.setTimeStamp(startTime);
-#ifdef SERIAL_DEBUG
-        Serial.print("WEEK");
-#endif
-      }
-#ifdef SERIAL_DEBUG
-      Serial.print(" buffer start time = ");
+      Serial.print("Reset buffer with start time = ");
       printTime(startTime);
 #endif
             
@@ -180,7 +164,7 @@ void setup() {
 
   /*
     Get some reasonable reading of the current pressure
-   */
+  */
   for (int i=0; i<8; i++) {
     baro.readData();
     temperatures[i] = baro.getTemperature();
