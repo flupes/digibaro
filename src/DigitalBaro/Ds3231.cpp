@@ -31,12 +31,12 @@ time_t Ds3231::getRtcTime()
 boolean Ds3231::enableSquareWave(byte freq)
 {
   if (freq > 3) return false;
+  freq = freq << 2;
   Wire.beginTransmission(m_rtcAddress);
   // bit 2 = 0 -> enable
   // bit 3 & 4 -> frequency
-  freq = freq << 2;
   Wire.send( 0x0E );
-  Wire.send( 0x18 );
+  Wire.send( 0x08 );
   Wire.endTransmission();
 }
 
