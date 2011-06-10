@@ -389,7 +389,7 @@ static void dog_transfer_sub_page(uint8_t page, uint8_t  offset)
   dog_spi_disable_client();
 }
 
-static void dog_transfer_page(void)
+void dog_transfer_page(void)
 {
 #if defined(DOG_DOUBLE_MEMORY)
 #if defined(DOG_REVERSE)
@@ -429,6 +429,14 @@ void dog_StartPage(void)
   dog_ClearPage();
 }
 
+void dog_set_page(uint8_t p)
+{
+  dog_curr_page = p;
+  dog_min_y = p*DOG_PAGE_HEIGHT;
+  dog_max_y = dog_min_y+DOG_PAGE_HEIGHT-1;
+  dog_ClearPage();
+}
+  
 uint8_t dog_NextPage(void)
 {
   dog_transfer_page();

@@ -187,6 +187,8 @@ void dog_SetInvertPixelMode(uint8_t val);	/* previosly named dog_set_inverse() *
 /* --- page functions --- */
 
 void dog_StartPage(void);
+void dog_set_page(uint8_t p);
+void dog_transfer_page(void);
 uint8_t dog_NextPage(void);
 
 /* --- dogmspi.c --- */
