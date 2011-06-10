@@ -138,14 +138,14 @@ void setup() {
       Serial.print("last WEEK");
 #endif
     }
-    bufferTimeStamp = buff->lastTimeStamp();
+    bufferTimeStamp = (unsigned long)buff->lastTimeStamp();
 #ifdef SERIAL_DEBUG
     Serial.print(" buffer time stamp = ");
     printTime(bufferTimeStamp);
 #endif
 
     if ( bufferTimeStamp == 0xFFFFFFFFul || 
-         startTime > buff->timeSpan() ) {
+         startTime-bufferTimeStamp > (unsigned long)buff->timeSpan() ) {
       // Reset the time to something rounded
       // this trivial method will work for buffer that
       // are least 1h long (more likely for this application)
