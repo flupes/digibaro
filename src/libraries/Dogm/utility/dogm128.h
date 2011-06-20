@@ -39,8 +39,8 @@
     DOGS102_HW		DOGS102 Display
     DOGM132_HW		DOGM132 Display
     DOGXL60_HW		DOGXL160 Display
-    ADA_ST7565P         Adafruit Graphics LCD based on the ST7565P
-    nothing defined		defaults to DOGM128 Display
+    ADA_ST7565P_HW      Adafruit Graphics LCD based on the ST7565P
+    nothing defined	defaults to DOGM128 Display
     
 */
 
@@ -61,11 +61,18 @@
 //#define DOGXL160_HW_BW			/* uncomment for the DOGXL160 display, black & white mode */
 //#define DOGXL160_HW_GR			/* uncomment for the DOGXL160 display gray level mode */
 
+//#define ADA_ST7565P_HW                        /* uncomment for the Adafruit ST7565P display. */
+                                                /* Note: if you are using a wiring scheme different from
+                                                   http://www.ladyada.net/learn/lcd/st7565.html
+                                                   then you will need to change the pin number accordingly 
+                                                   (lower in this same file, look for PIN_RST)
+                                                */
+
 /*=========================================================================*/
 /* End: User Configuration */
 /*=========================================================================*/
 
-#if !defined ADA_ST7565P && !defined DOGM128_HW && !defined DOGM132_HW && !defined DOGS102_HW && !defined DOGXL160_HW_BW  && !defined DOGXL160_HW_GR
+#if !defined ADA_ST7565P_HW && !defined DOGM128_HW && !defined DOGM132_HW && !defined DOGS102_HW && !defined DOGXL160_HW_BW  && !defined DOGXL160_HW_GR
 /* #define DOGM128_HW */
 /* print error message, please uncomment one of the displays above */
 #error LCD model is not defined. Define your LCD in dogm128.h.
@@ -105,7 +112,7 @@
 #endif
 
 /* setings for the various DOG displays */
-#ifdef ADA_ST7565P
+#ifdef ADA_ST7565P_HW
 #define DOG_WIDTH 128
 #define DOG_HEIGHT 64
 #endif
@@ -157,21 +164,25 @@ extern uint8_t dog_max_y;
 /* --- dogm128.c --- */
 
 /* pin assignment for arduino, should be renamed */
-// #define PIN_SCK   13
-// #define PIN_MISO  12
-// #define PIN_MOSI  11
-// #define PIN_SS    10
-// #define PIN_A0_DEFAULT     6
-
-#define PIN_SCK         8
-#define PIN_MOSI        9
-#define PIN_SS          5
+  
+#ifndef ADA_ST7565P_HW
+#define PIN_SCK   13
+#define PIN_MISO  12
+#define PIN_MOSI  11
+#define PIN_SS    10
+#define PIN_A0_DEFAULT     9
+#else
+#define PIN_RST   6     // This is for the default Adafruit wiring scheme
+#define PIN_SCK   8     // described in:
+#define PIN_MOSI  9     // http://www.ladyada.net/learn/lcd/st7565.html
+#define PIN_SS    5     // change these numbers to reflect your wiring.
 #define PIN_A0_DEFAULT  7
+#endif
 
 extern uint8_t dog_spi_pin_a0;
 extern uint8_t dog_spi_pin_cs;	/* arduino chip select pin */
 
-#ifdef ADA_ST7565P
+#ifdef ADA_ST7565P_HW
 extern uint8_t dog_spi_pin_rst; /* ST7565P reset pin */
 #endif
 
@@ -183,12 +194,11 @@ void dog_InitA0CS(uint8_t pin_a0, uint8_t pin_cs);
 void dog_Init(unsigned short pin_a0);
 void dog_SetContrast(uint8_t val);			/* values between 0 and 63 allowed, previosly named dog_set_contranst() */
 void dog_SetInvertPixelMode(uint8_t val);	/* previosly named dog_set_inverse() */
+void dog_SetUC1610GrayShade(uint8_t val);	/* dogmsysgr.c, values are from 0 to 3 */
 
 /* --- page functions --- */
 
 void dog_StartPage(void);
-void dog_set_page(uint8_t p);
-void dog_transfer_page(void);
 uint8_t dog_NextPage(void);
 
 /* --- dogmspi.c --- */

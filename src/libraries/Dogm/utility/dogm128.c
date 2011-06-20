@@ -56,7 +56,11 @@
 #else
 #endif
 
-#include <wiring.h>	/* arduino pinMode */
+/* moved to dogmspi.c
+#ifdef ADA_ST7565P_HW
+#include <wiring.h>	
+#endif
+*/
 
 unsigned char dog_page_buffer[DOG_PAGE_SIZE];
 uint8_t dog_curr_page = 0;	/* 0...DOG_PAGE_CNT-1 */
@@ -67,8 +71,8 @@ uint8_t dog_max_y = DOG_PAGE_HEIGHT-1;
 uint8_t dog_spi_pin_a0 = PIN_A0_DEFAULT;
 uint8_t dog_spi_pin_cs = PIN_SS;	/* arduino chip select pin, defaults to the hardware pin */
 
-#ifdef ADA_ST7565P
-uint8_t dog_spi_pin_rst = 6;
+#ifdef ADA_ST7565P_HW
+uint8_t dog_spi_pin_rst = PIN_RST;
 #define ST7565P_STARTBYTES 1
 #endif
 
@@ -131,6 +135,7 @@ void dog_Delay(uint16_t val)
 
 static void dog_init_display(void)
 {
+  
   dog_Delay(10);
   dog_spi_disable_client();	/* force reset of the spi subsystem of the ST7565R */
   dog_Delay(10);
@@ -138,15 +143,7 @@ static void dog_init_display(void)
   dog_Delay(10);
   dog_cmd_mode();
 
-#ifdef ADA_ST7565P
-  // Reset procedure taken from Adafruit ST7565 library
-  // toggle RST low to reset; CS low so it'll listen to us
-  if (dog_spi_pin_cs > 0)
-    digitalWrite(dog_spi_pin_cs, LOW);
-  digitalWrite(dog_spi_pin_rst, LOW);
-  dog_Delay(100);
-  digitalWrite(dog_spi_pin_rst, HIGH);
-  
+#ifdef ADA_ST7565P_HW  
   dog_spi_out(0xA3);            // LCD bias select to 1/7 (1/9) does NOT work!
 
   dog_spi_out(0xA1);            // ACD set to reverse
@@ -168,6 +165,7 @@ static void dog_init_display(void)
   //dog_spi_out(0xAC);            // indicator on
   dog_spi_out(0xAF);            // display on
 #endif
+
   /* mostly taken from the EA dogm description */
 
 #ifdef DOGM128_HW
@@ -233,8 +231,8 @@ static void dog_init_display(void)
   dog_spi_out(0x0a6);		/* normal pixel mode, issue 103 */
   dog_spi_out(0x0d3);		/* 0xd3=40% RMS separation for gray levels */
   dog_spi_out(0x0af);		/* display on */
-
 #endif
+
   dog_spi_out(0x0a5);		/* display all points, ST7565, UC1610 */
   dog_Delay(300);
   dog_spi_out(0x0a4);		/* normal display  */
@@ -363,7 +361,7 @@ static void dog_transfer_sub_page(uint8_t page, uint8_t  offset)
   dog_spi_result = dog_spi_out(0x000 );		/* set lower 4 bit of the col adr to 0 */
 #else
   dog_spi_out(0x0b0 | page );           	/* select current page (ST7565R/P) */
-#ifndef ADA_ST7565P
+#ifndef ADA_ST7565P_HW
   dog_spi_out(0x010 );                          /* set upper 4 bit of the col adr to 0 */
   dog_spi_result = dog_spi_out(0x000 );		/* set lower 4 bit of the col adr to 0 */
 #else
@@ -389,7 +387,7 @@ static void dog_transfer_sub_page(uint8_t page, uint8_t  offset)
   dog_spi_disable_client();
 }
 
-void dog_transfer_page(void)
+static void dog_transfer_page(void)
 {
 #if defined(DOG_DOUBLE_MEMORY)
 #if defined(DOG_REVERSE)
@@ -429,14 +427,6 @@ void dog_StartPage(void)
   dog_ClearPage();
 }
 
-void dog_set_page(uint8_t p)
-{
-  dog_curr_page = p;
-  dog_min_y = p*DOG_PAGE_HEIGHT;
-  dog_max_y = dog_min_y+DOG_PAGE_HEIGHT-1;
-  dog_ClearPage();
-}
-  
 uint8_t dog_NextPage(void)
 {
   dog_transfer_page();
