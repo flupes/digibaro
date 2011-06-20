@@ -47,7 +47,8 @@ extern const dog_pgm_uint8_t font_8x13[];
 extern const dog_pgm_uint8_t font_8x16[];
 extern const dog_pgm_uint8_t font_9x15[];
 extern const dog_pgm_uint8_t font_9x18[];
-
+extern const dog_pgm_uint8_t font_atomicsc[];
+extern const dog_pgm_uint8_t font_04B_25[];
 
 #ifdef __cplusplus
 }
