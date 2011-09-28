@@ -1,0 +1,203 @@
+##+FILETAGS: KREX
+#+OPTIONS: H:1 toc:nil num:nil d:nil
+#+TITLE: K-REX Agile Project Plan
+#+AUTHOR: Lorenzo Flueckiger
+#+SETUPFILE: level-0.org
+#+TAGS: hardware(h) software(s) infrastructure(i) avionics(a) testing(t) ordering(o)
+#+TODO: READY(r) STARTED(g!) BLOCKED(k@/!) DELAYED(l@) | COMPLETED(d!) FAILED(f@) CANCELED(c@)
+#+PRIORITIES: 0 2 1
+#+STARTUP: content
+
+* Tasks   
+ :PROPERTIES:
+  :ID: krex_tasks
+  :unique-id: krex_tasks
+  :headline: "K-REX Tasks"
+  :version: 2.0
+  :dailyworkinghours: 8
+  :start: 2010-10-01
+  :COLUMNS:  %40ITEM(Task) %10allocate(POC) %10TODO(State) %4Effort %4complete %10start %15task_id %2ORDERED %15BLOCKER 
+  :COLUMNS:  %30ITEM(Task) %10Effort %10allocate %10complete %10task_id %10start %10BLOCKER %10ORDERED
+  :allocate_ALL: vinh jason hans susan linda lorenzo xavier markm mikew marks stu staff
+  :complete_ALL: 0 25 33 50 66 75 100 10 90
+  :END:
+** Motion control with profile and trajectory mode
+   :PROPERTIES:
+   :milestone:
+   :start:    2011-11-29
+   :END:
+*** COMPLETED Complete IDD and implementation			   :software:
+    CLOSED: [2011-09-27 Tue 17:21]
+    :LOGBOOK:
+    - State "COMPLETED"  from ""           [2011-09-27 Tue 17:21]
+    :END:
+*** STARTED [#1] Unified CAN bus with external wiring		   :software:
+    :LOGBOOK:
+    - State "STARTED"    from ""           [2011-09-27 Tue 17:21]
+    :END:
+*** READY [#0] Wiring of the rocker CAN + USB			   :hardware:
+*** COMPLETED Merge wheelgroup with trunk			   :software:
+    CLOSED: [2011-02-14 Mon 10:54]
+    :LOGBOOK:
+    - State "COMPLETED"  from "STARTED"    [2011-02-14 Mon 10:54]
+    - State "STARTED"    from "READY"      [2011-02-14 Mon 10:54]
+    :END:
+*** STARTED Fix curvature issues				   :software:
+    :LOGBOOK:
+    - State "STARTED"    from ""           [2011-09-27 Tue 17:22]
+    :END:
+*** READY Adapt FSD to K-REX					   :software:
+*** COMPLETED Fix logic in position drive			   :software:
+    CLOSED: [2011-02-14 Mon 13:11]
+    :LOGBOOK:
+    - State "COMPLETED"  from ""           [2011-02-14 Mon 13:11]
+    :END:
+*** COMPLETED K-REX Brain [2/2]
+**** COMPLETED laptop selection and acquisition 		   :ordering:
+     CLOSED: [2011-02-14 Mon 13:22]
+     :LOGBOOK:
+     - State "COMPLETED"  from ""           [2011-02-14 Mon 13:22]
+     :END:
+**** COMPLETED laptop configuration and test			   :avionics:
+     :LOGBOOK:
+     - State "STARTED"    from "COMPLETED"  [2011-09-28 Wed 11:37]
+     - State "COMPLETED"  from "STARTED"    [2011-09-28 Wed 11:35]
+     - State "STARTED"    from ""           [2011-02-14 Mon 13:23]
+     :END:
+*** READY Locomote in the Marscape				    :testing:
+** Navigation Test with ARCNav
+   :PROPERTIES:
+   :milestone:
+   :start:    2011-10-13
+   :END:
+*** READY Stereo cameras head [3/3]
+**** COMPLETED Order cameras					   :ordering:
+     CLOSED: [2011-02-14 Mon 13:15]
+     :LOGBOOK:
+     - State "COMPLETED"  from ""           [2011-02-14 Mon 13:15]
+     :END:
+**** CANCELED Order lenses					   :ordering:
+     CLOSED: [2011-06-28 Tue 12:43]
+     :LOGBOOK:
+     - State "CANCELED"   from "READY"      [2011-06-28 Tue 12:44] \\
+       use the existing one
+     :END:
+**** COMPLETED Adapt current mount to the RASM Mast		   :hardware:
+     CLOSED: [2011-06-28 Tue 12:44]
+     :LOGBOOK:
+     - State "COMPLETED"  from "READY"      [2011-06-28 Tue 12:44]
+     :END:
+*** READY [#0] Calibrate camera					   :software:
+*** COMPLETED Install Xsens					   :hardware:
+    CLOSED: [2011-06-28 Tue 12:44]
+    :LOGBOOK:
+    - State "COMPLETED"  from "READY"      [2011-06-28 Tue 12:44]
+    :END:
+*** COMPLETED Install HMR3000					   :hardware:
+    CLOSED: [2011-06-28 Tue 12:44]
+    :LOGBOOK:
+    - State "COMPLETED"  from "READY"      [2011-06-28 Tue 12:44]
+    :END:
+*** CANCELED Install old GPS					   :hardware:
+    CLOSED: [2011-09-28 Wed 11:48]
+    :LOGBOOK:
+    - State "CANCELED"   from "READY"      [2011-09-28 Wed 11:48] \\
+      Directly go with the new GPS
+    :END:
+*** COMPLETED Enclosure for new GPS				   :hardware:
+    CLOSED: [2011-09-27 Tue 16:55]
+    :LOGBOOK:
+    - State "COMPLETED"  from "STARTED"    [2011-09-27 Tue 16:55]
+    - State "STARTED"    from "READY"      [2011-09-27 Tue 16:53]
+    :END:
+*** STARTED [#1] Case for laptop				   :hardware:
+    :LOGBOOK:
+    - State "STARTED"    from ""           [2011-09-27 Tue 16:55]
+    :END:
+*** READY Blind mode navigation implemented			   :software:
+*** STARTED Install new GPS				  :hardware:avionics:
+*** READY Install Novatel IMU				  :hardware:avionics:
+*** READY Service for the new IMU/GPS				   :software:
+*** READY Navigate in the Marscape
+** Power System
+*** COMPLETED Connect current sensors				   :avionics:
+    CLOSED: [2011-09-28 Wed 11:59]
+    :LOGBOOK:
+    - State "COMPLETED"  from ""           [2011-09-28 Wed 11:59]
+    :END:
+*** READY Populate telemetry messages with voltages/currents	   :software:
+*** READY Create service reading rocker power information	   :software:
+*** READY Power8 Battery System [0/3]
+**** READY Install Power8 battery system			   :hardware:
+**** READY Wire and install new DC/DC for Power8 system		   :avionics:
+**** READY Write service for Power8 system			   :software:
+*** READY Easy to carry charging system				   :hardware:
+*** READY ground the big capacitors				   :avionics:
+** FY11 Engineering Field Test
+   :PROPERTIES:
+   :milestone:
+   :start:    2011-11-25
+   :END:
+*** READY Joystick code with minimal lag			   :software:
+*** READY Basalt Hills KML layer for VERVE			   :software:
+*** READY Functional Position Estimator				   :software:
+*** READY Navigation parameters suitable for K-REX		   :software:
+*** READY Design terrain traverses			     :infrastructure:
+*** READY Obtain a hires DEM of Basalt Hills			   :ordering:
+** Infrastructure
+*** READY [#1] Trailer outfitting			     :infrastructure:
+*** READY K-REX jack system				     :infrastructure:
+*** READY Antennas (GPS + Tropos) support
+* Second project view
+#+BEGIN: propview :id "krex_tasks" :cols (ITEM allocate TODO)
+| "ITEM"                                                            | "allocate" | "TODO"      |
+|-------------------------------------------------------------------+------------+-------------|
+| "Tasks   "                                                        |          0 | 0           |
+| "Motion control with profile and trajectory mode"                 |          0 | 0           |
+| "COMPLETED Complete IDD and implementation"                       |          0 | "COMPLETED" |
+| "STARTED [#1] Unified CAN bus with external wiring"               |          0 | "STARTED"   |
+| "READY [#0] Wiring of the rocker CAN + USB"                       |          0 | "READY"     |
+| "COMPLETED Merge wheelgroup with trunk"                           |          0 | "COMPLETED" |
+| "STARTED Fix curvature issues     "                               |          0 | "STARTED"   |
+| "READY Adapt FSD to K-REX"                                        |          0 | "READY"     |
+| "COMPLETED Fix logic in position drive"                           |          0 | "COMPLETED" |
+| "COMPLETED K-REX Brain [2/2]"                                     |          0 | "COMPLETED" |
+| "COMPLETED laptop selection and acquisition \n\n   :ordering:"    |          0 | "COMPLETED" |
+| "COMPLETED laptop configuration and test \n\n\n   :avionics:"     |          0 | "COMPLETED" |
+| "READY Locomote in the Marscape"                                  |          0 | "READY"     |
+| "Navigation Test with ARCNav"                                     |          0 | 0           |
+| "READY Stereo cameras head [3/3]"                                 |          0 | "READY"     |
+| "COMPLETED Order cameras\n\n\n\n\n   :ordering:"                  |          0 | "COMPLETED" |
+| "CANCELED Order lenses\n\n\n\n\n   :ordering:"                    |          0 | "CANCELED"  |
+| "COMPLETED Adapt current mount to the RASM Mast\n\n   :hardware:" |          0 | "COMPLETED" |
+| "READY [#0] Calibrate camera\n\n\n\n\n   :software:"              |          0 | "READY"     |
+| "COMPLETED Install Xsens"                                         |          0 | "COMPLETED" |
+| "COMPLETED Install HMR3000"                                       |          0 | "COMPLETED" |
+| "CANCELED Install old GPS"                                        |          0 | "CANCELED"  |
+| "COMPLETED Enclosure for new GPS"                                 |          0 | "COMPLETED" |
+| "STARTED [#1] Case for laptop"                                    |          0 | "STARTED"   |
+| "READY Blind mode navigation implemented"                         |          0 | "READY"     |
+| "STARTED Install new GPS"                                         |          0 | "STARTED"   |
+| "READY Install Novatel IMU"                                       |          0 | "READY"     |
+| "READY Service for the new IMU/GPS"                               |          0 | "READY"     |
+| "READY Navigate in the Marscape"                                  |          0 | "READY"     |
+| "Power System"                                                    |          0 | 0           |
+| "COMPLETED Connect current sensors"                               |          0 | "COMPLETED" |
+| "READY Populate telemetry messages with voltages/currents"        |          0 | "READY"     |
+| "READY Create service reading rocker power information"           |          0 | "READY"     |
+| "READY Power8 Battery System [0/3]"                               |          0 | "READY"     |
+| "READY Install Power8 battery system"                             |          0 | "READY"     |
+| "READY Wire and install new DC/DC for Power8 system"              |          0 | "READY"     |
+| "READY Write service for Power8 system"                           |          0 | "READY"     |
+| "READY Easy to carry charging system"                             |          0 | "READY"     |
+| "FY11 Engineering Field Test"                                     |          0 | 0           |
+| "READY Joystick code with minimal lag"                            |          0 | "READY"     |
+| "READY Basalt Hills KML layer for VERVE"                          |          0 | "READY"     |
+| "READY Functional Position Estimator"                             |          0 | "READY"     |
+| "READY Navigation parameters suitable for K-REX"                  |          0 | "READY"     |
+| "Infrastructure"                                                  |          0 | 0           |
+| "READY [#1] Trailer outfitting"                                   |          0 | "READY"     |
+| "READY K-REX jack system"                                         |          0 | "READY"     |
+|-------------------------------------------------------------------+------------+-------------|
+|                                                                   |            |             |
+#+END:
