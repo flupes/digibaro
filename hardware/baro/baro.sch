@@ -1,0 +1,205 @@
+EESchema Schematic File Version 2  date Wed 12 Oct 2011 22:13:51 PDT
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:special
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:baro-cache
+EELAYER 24  0
+EELAYER END
+$Descr A 11000 8500
+Sheet 1 1
+Title "Digital Barograph Main Board"
+Date "13 oct 2011"
+Rev "0.1"
+Comp "Flupes"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+Wire Wire Line
+	4450 2750 4450 2850
+Connection ~ 4050 3450
+Connection ~ 4850 3450
+Wire Wire Line
+	5250 3550 5250 3450
+Wire Wire Line
+	4450 3550 4450 3350
+Wire Wire Line
+	4050 4850 4050 4750
+Connection ~ 4450 4850
+Wire Wire Line
+	4850 4750 4850 4850
+Wire Wire Line
+	3650 4050 3650 4150
+Wire Wire Line
+	4450 4050 4450 4150
+Wire Wire Line
+	5250 4050 5250 4150
+Wire Wire Line
+	4850 4050 4850 4150
+Wire Wire Line
+	4050 4050 4050 4150
+Wire Wire Line
+	4450 4950 4450 4750
+Wire Wire Line
+	5250 4750 5250 4850
+Connection ~ 4850 4850
+Wire Wire Line
+	3650 4750 3650 4850
+Wire Wire Line
+	3650 4850 5250 4850
+Connection ~ 4050 4850
+Wire Wire Line
+	4850 3550 4850 3450
+Connection ~ 4450 3450
+Wire Wire Line
+	4050 3450 4050 3550
+Wire Wire Line
+	3650 3550 3650 3450
+Wire Wire Line
+	3650 3450 5250 3450
+$Comp
+L SW_PUSH SW5
+U 1 1 4E966DBF
+P 3650 4450
+F 0 "SW5" H 3800 4560 50  0000 C CNN
+F 1 "SW_PUSH" H 3650 4370 50  0000 C CNN
+	1    3650 4450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L SW_PUSH SW4
+U 1 1 4E966DB3
+P 4050 4450
+F 0 "SW4" H 4200 4560 50  0000 C CNN
+F 1 "SW_PUSH" H 4050 4370 50  0000 C CNN
+	1    4050 4450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L SW_PUSH SW2
+U 1 1 4E966DA5
+P 4850 4450
+F 0 "SW2" H 5000 4560 50  0000 C CNN
+F 1 "SW_PUSH" H 4850 4370 50  0000 C CNN
+	1    4850 4450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L SW_PUSH SW3
+U 1 1 4E966D98
+P 4450 4450
+F 0 "SW3" H 4600 4560 50  0000 C CNN
+F 1 "SW_PUSH" H 4450 4370 50  0000 C CNN
+	1    4450 4450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L SW_PUSH SW1
+U 1 1 4E966D83
+P 5250 4450
+F 0 "SW1" H 5400 4560 50  0000 C CNN
+F 1 "SW_PUSH" H 5250 4370 50  0000 C CNN
+	1    5250 4450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R5
+U 1 1 4E966D5B
+P 3650 3800
+F 0 "R5" V 3730 3800 50  0000 C CNN
+F 1 "22.1K" V 3650 3800 50  0000 C CNN
+	1    3650 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R4
+U 1 1 4E966D55
+P 4050 3800
+F 0 "R4" V 4130 3800 50  0000 C CNN
+F 1 "9.31K" V 4050 3800 50  0000 C CNN
+	1    4050 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R1
+U 1 1 4E966D4C
+P 5250 3800
+F 0 "R1" V 5330 3800 50  0000 C CNN
+F 1 "1.039K" V 5250 3800 50  0000 C CNN
+	1    5250 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R2
+U 1 1 4E966D43
+P 4850 3800
+F 0 "R2" V 4930 3800 50  0000 C CNN
+F 1 "2.1K" V 4850 3800 50  0000 C CNN
+	1    4850 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R3
+U 1 1 4E966D29
+P 4450 3800
+F 0 "R3" V 4530 3800 50  0000 C CNN
+F 1 "4.99K" V 4450 3800 50  0000 C CNN
+	1    4450 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R0
+U 1 1 4E966D1F
+P 4450 3100
+F 0 "R0" V 4530 3100 50  0000 C CNN
+F 1 "4.99K" V 4450 3100 50  0000 C CNN
+	1    4450 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR01
+U 1 1 4E966CAC
+P 4450 4950
+F 0 "#PWR01" H 4450 4950 30  0001 C CNN
+F 1 "GND" H 4450 4880 30  0001 C CNN
+	1    4450 4950
+	1    0    0    -1  
+$EndComp
+$Comp
+L +3,3V #PWR02
+U 1 1 4E966C80
+P 4450 2750
+F 0 "#PWR02" H 4450 2710 30  0001 C CNN
+F 1 "+3,3V" H 4450 2860 30  0000 C CNN
+	1    4450 2750
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC
