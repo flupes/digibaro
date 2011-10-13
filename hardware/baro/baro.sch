@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed 12 Oct 2011 22:13:51 PDT
+EESchema Schematic File Version 2  date Wed 12 Oct 2011 23:44:40 PDT
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -43,17 +43,26 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+$Comp
+L GND #PWR?
+U 1 1 4E9688C7
+P 4450 4950
+F 0 "#PWR?" H 4450 4950 30  0001 C CNN
+F 1 "GND" H 4450 4880 30  0001 C CNN
+	1    4450 4950
+	1    0    0    -1  
+$EndComp
+Connection ~ 4450 4850
 Wire Wire Line
-	4450 2750 4450 2850
+	4450 4950 4450 4750
 Connection ~ 4050 3450
 Connection ~ 4850 3450
 Wire Wire Line
 	5250 3550 5250 3450
 Wire Wire Line
-	4450 3550 4450 3350
+	4450 3350 4450 3550
 Wire Wire Line
 	4050 4850 4050 4750
-Connection ~ 4450 4850
 Wire Wire Line
 	4850 4750 4850 4850
 Wire Wire Line
@@ -66,8 +75,6 @@ Wire Wire Line
 	4850 4050 4850 4150
 Wire Wire Line
 	4050 4050 4050 4150
-Wire Wire Line
-	4450 4950 4450 4750
 Wire Wire Line
 	5250 4750 5250 4850
 Connection ~ 4850 4850
@@ -85,6 +92,17 @@ Wire Wire Line
 	3650 3550 3650 3450
 Wire Wire Line
 	3650 3450 5250 3450
+Wire Wire Line
+	4450 2850 4450 2750
+$Comp
+L +3.3V #PWR02
+U 1 1 4E9687EA
+P 4450 2750
+F 0 "#PWR02" H 4450 2710 30  0001 C CNN
+F 1 "+3.3V" H 4450 2860 30  0000 C CNN
+	1    4450 2750
+	1    0    0    -1  
+$EndComp
 $Comp
 L SW_PUSH SW5
 U 1 1 4E966DBF
@@ -182,24 +200,6 @@ P 4450 3100
 F 0 "R0" V 4530 3100 50  0000 C CNN
 F 1 "4.99K" V 4450 3100 50  0000 C CNN
 	1    4450 3100
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR01
-U 1 1 4E966CAC
-P 4450 4950
-F 0 "#PWR01" H 4450 4950 30  0001 C CNN
-F 1 "GND" H 4450 4880 30  0001 C CNN
-	1    4450 4950
-	1    0    0    -1  
-$EndComp
-$Comp
-L +3,3V #PWR02
-U 1 1 4E966C80
-P 4450 2750
-F 0 "#PWR02" H 4450 2710 30  0001 C CNN
-F 1 "+3,3V" H 4450 2860 30  0000 C CNN
-	1    4450 2750
 	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
