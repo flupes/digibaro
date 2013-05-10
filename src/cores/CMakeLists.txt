@@ -2,8 +2,8 @@
 
 file(GLOB coresfiles ${corespath}/*.c ${corespath}/*.cpp)
 
-#message(STATUS "corespath=${corespath}")
-#message(STATUS "coresfiles=${coresfiles}")
+message(STATUS "corespath=${corespath}")
+message(STATUS "coresfiles=${coresfiles}")
 
 add_library (corearduino ${coresfiles})
 
