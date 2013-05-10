@@ -46,7 +46,8 @@ RST pin = 6
 
 #include <Dogm.h>
 
-#include "WProgram.h"
+#include "Arduino.h"
+
 void setup();
 void loop();
 

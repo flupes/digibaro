@@ -36,7 +36,8 @@
 
 #include <Dogm.h>
 
-#include "WProgram.h"
+#include "Arduino.h"
+
 void setup();
 void loop();
 
@@ -61,9 +62,9 @@ void loop() {
   
   switch(font_select) {
       default: font_select = 0; /* no break */
-      case 0: h = 10; p = font_4x6; f = "4x6"; break;
-      case 1: h = 10; p = font_atomicsc; f = "atomicsc"; break;
-      case 2: h = 10; p = font_04B_25; f = "04B-25"; break;
+//      case 0: h = 10; p = font_4x6; f = "4x6"; break;
+//      case 1: h = 10; p = font_atomicsc; f = "atomicsc"; break;
+//      case 2: h = 10; p = font_04B_25; f = "04B-25"; break;
       case 3: h = 10; p = font_5x7; f = "5x7"; break;
       case 4: h = 10; p = font_5x8; f = "5x8"; break;
       case 5: h = 10; p = font_6x9; f = "6x9"; break;
@@ -73,7 +74,7 @@ void loop() {
       case 9: h = 11; p = font_7x13; f = "7x13"; break;
       case 10: h = 12; p = font_7x14; f = "7x14"; break;
       case 11: h = 12; p = font_8x13; f = "8x13"; break;
-      case 12: h = 15; p = font_8x16; f = "8x16"; break;
+//      case 12: h = 15; p = font_8x16; f = "8x16"; break;
   }
   font_select++;
   

@@ -1,6 +1,6 @@
 #include <Dogm.h>
 
-#include "WProgram.h"
+#include "Arduino.h"
 void setup();
 void loop();
 
@@ -32,11 +32,13 @@ void loop() {
 //    dogm.next();
 //  dog_set_page(3);
   do {
-    p = font_04B_25;
+// LJF: Fix me by finding again this font!
+//    p = font_04B_25;
     dogm.setFont(p);
     dogm.setXY(0,62-h);
     dogm.print(" : 0123456789 .");
-    p = font_atomicsc;
+// LJF: Fix me by finding again this font!
+//    p = font_atomicsc;
     dogm.setFont(p);
     dogm.setXY(100,62-h);
     dogm.print(text);
