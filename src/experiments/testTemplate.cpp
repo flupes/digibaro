@@ -1,4 +1,4 @@
-#include <WProgram.h>
+#include <Arduino.h>
 
 #define LED_PIN 13
 
