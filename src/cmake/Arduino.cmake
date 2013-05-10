@@ -11,7 +11,7 @@ elseif ( CMAKE_HOST_WIN32 )
 #  set(ARDUINO_ROOT "/cygdrive/c/Arduino22")
 # will not work since host is Unix in case of Cygwin
 elseif ( CMAKE_HOST_APPLE )
-  set(ARDUINO_ROOT "/Users/lfluckig/Apps/Arduino.app/Contents/Resources/Java/")
+  set(ARDUINO_ROOT "/Users/Shared/apps/Arduino.app/Contents/Resources/Java")
 elseif ( CMAKE_HOST_UNIX )
   set(ARDUINO_ROOT "/usr/share/arduino")
 else ()
@@ -25,12 +25,15 @@ set(CORES_ARDUINO_DIR "hardware/arduino/cores/arduino")
 set(ARDUINO_LIBS_DIR "libraries")
 
 # Define the full paths
-#set(corespath ${ARDUINO_ROOT}/${CORES_ARDUINO_DIR})
-set(corespath ${CMAKE_SOURCE_DIR}/cores)
+set(corespath ${ARDUINO_ROOT}/${CORES_ARDUINO_DIR})
+#set(corespath ${CMAKE_SOURCE_DIR}/cores)
 set(libspath ${ARDUINO_ROOT}/${ARDUINO_LIBS_DIR})
 
 # general includes of cores files
 include_directories( ${corespath} )
+
+# Define the Arduino IDE version
+set(ARDUINO_FLAG "-DARDUINO=104")
 
 # ============================================================
 # Compilation and linking definitions
@@ -39,12 +42,12 @@ if(ARDUINO_IDE_MODE)
     set(WARNING_FLAGS "-w")
     set(C_FLAGS "")
     set(TUNING_FLAGS "")
-    set(ARDUINO_FLAG "-DARDUINO=22")
+message("This is IDE mode")
 else()
     set(WARNING_FLAGS "-Wall -Wextra")
     set(C_FLAGS "-Wstrict-prototypes")
     set(TUNING_FLAGS "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
-    set(ARDUINO_FLAG "")
+message("This regular mode")
 endif()
 
 set(DEBUG_FLAG "-g")
@@ -73,6 +76,9 @@ endif ()
 
 set(MCU_FLAG "-mmcu=${BOARD_MCU}")
 set(CPU_FLAG "-DF_CPU=${BOARD_CPU}")
+
+# Add the board specific includes
+include_directories( ${ARDUINO_ROOT}/hardware/arduino/variants/${BOARD_VARIANT} )
 
 # Define the C compiler options
 set(CMAKE_C_FLAGS "${DEBUG_FLAG} ${OPTI_FLAG} ${WARNING_FLAGS} ${C_FLAGS} ${AVR_FLAGS} ${MCU_FLAG} ${CPU_FLAG} ${ARDUINO_FLAG}")
