@@ -1,8 +1,5 @@
 # Build the contributed Arduino libraries
 
-set(EXTERNAL_GIT_DIR /Volumes/MacNetDisk/ljfdev/git)
-set(EXTERNAL_PKG_DIR /Volumes/MacNetDisk/ljfdev/pkgs)
-
 set(ardlibsfiles "")
 foreach(dir Wire Wire/utility)
 	file(GLOB tmpfiles ${libspath}/${dir}/*.c ${libspath}/${dir}/*.cpp)
@@ -13,11 +10,9 @@ add_library (arduinolibs ${ardlibsfiles})
 
 set(st7565libfiles "")
 
-foreach(dir ${EXTERNAL_GIT_DIR}/ST7565-LCD/ST7565)
-	file(GLOB tmpfiles ${dir}/*.c ${dir}/*.cpp)
-	list(APPEND st7565libsfiles ${tmpfiles}) 
-	include_directories( ${dir} )
-endforeach(dir)
+message(st7565dir=${ST7565_DIR})
+file(GLOB st7565libsfiles ${ST7565_DIR}/*.c ${ST7565_DIR}/*.cpp)
+include_directories( ${ST7565_DIR} )
 add_library (st7565 ${st7565libsfiles})
 
 set(timelibfiles "")

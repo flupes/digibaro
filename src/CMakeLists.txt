@@ -12,8 +12,15 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 # Use the exact Arduino IDE flags
 #set(ARDUINO_IDE_MODE TRUE)
 
-include( cmake/Arduino.cmake )
+# Path to third-party libraries
+set(EXTERNAL_GIT_DIR /Volumes/MacNetDisk/ljfdev/git)
+set(EXTERNAL_PKG_DIR /Volumes/MacNetDisk/ljfdev/pkgs)
 
+# Where to find the ST7565 by Adafruit
+set(ST7565_DIR ${EXTERNAL_GIT_DIR}/ST7565-LCD/ST7565)
+message(hereitis=${ST7565_DIR})
+
+include( cmake/Arduino.cmake )
 
 # Here are the Arduino core libraries to build
 add_subdirectory( cores )
