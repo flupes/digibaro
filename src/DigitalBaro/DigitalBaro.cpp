@@ -1,7 +1,5 @@
 #include <Wire.h>
 
-#include "ST7565.h"
-
 #include "AnalogFiveButtons.h"
 #include "Ds3231.h"
 #include "Bmp085.h"

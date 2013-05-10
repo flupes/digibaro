@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+
 #include <Wire.h>
 
 /*
@@ -35,8 +36,8 @@ boolean Ds3231::enableSquareWave(byte freq)
   Wire.beginTransmission(m_rtcAddress);
   // bit 2 = 0 -> enable
   // bit 3 & 4 -> frequency
-  Wire.send( 0x0E );
-  Wire.send( 0x08 );
+  Wire.write( 0x0E );
+  Wire.write( 0x08 );
   Wire.endTransmission();
 }
 
@@ -45,8 +46,8 @@ void Ds3231::disableSquareWave()
   Wire.beginTransmission(m_rtcAddress);
   // bit 2 = 1 -> disable
   // restore bit 3 & 4 to default (1)
-  Wire.send( 0x0E );
-  Wire.send( 0x1C );
+  Wire.write( 0x0E );
+  Wire.write( 0x1C );
   Wire.endTransmission();
 }
 
@@ -54,18 +55,18 @@ void Ds3231::readData()
 {
   // send request to receive data starting at register 0
   Wire.beginTransmission(m_rtcAddress);
-  Wire.send(0x00); // start at register 0
+  Wire.write(0x00); // start at register 0
   Wire.endTransmission();
   Wire.requestFrom(m_rtcAddress, (uint8_t)7); // request seven bytes
   
   if(Wire.available()) { 
-    m_time.Second =  Wire.receive();
-    m_time.Minute = Wire.receive();
-    m_time.Hour   = Wire.receive();
-    m_time.Wday     = Wire.receive();
-    m_time.Day    = Wire.receive();
-    m_time.Month   = Wire.receive();
-    m_time.Year    = Wire.receive();       
+    m_time.Second =  Wire.read();
+    m_time.Minute = Wire.read();
+    m_time.Hour   = Wire.read();
+    m_time.Wday     = Wire.read();
+    m_time.Day    = Wire.read();
+    m_time.Month   = Wire.read();
+    m_time.Year    = Wire.read();       
   }
   else {
     //oh noes, no data!

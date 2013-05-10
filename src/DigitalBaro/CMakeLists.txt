@@ -9,7 +9,7 @@ set(LIBS eepromUtils analog5b arduinolibs corearduino m)
 
 # Where to find the includes
 include_directories( ${libspath}/Wire )
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libraries/ST7565 )
+include_directories( ${ST7565_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libraries/Time )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../AnalogFiveButtons )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../EepromUtils )

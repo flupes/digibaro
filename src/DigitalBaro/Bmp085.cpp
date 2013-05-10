@@ -2,8 +2,9 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <Time.h>
+#include <Arduino.h>
 #include <Wire.h>
-#include <wiring.h>
 
 Bmp085::Bmp085(int address, unsigned char overSampling) :
   m_sensorAddress(address), m_oss(overSampling)
@@ -92,8 +93,8 @@ unsigned int Bmp085::readRawTemperature()
   // Write 0x2E into Register 0xF4
   // This requests a temperature reading
   Wire.beginTransmission(m_sensorAddress);
-  Wire.send(0xF4);
-  Wire.send(0x2E);
+  Wire.write(0xF4);
+  Wire.write(0x2E);
   Wire.endTransmission();
   
   // Wait at least 4.5ms
@@ -112,8 +113,8 @@ unsigned long Bmp085::readRawPressure()
   // Write 0x34+(m_oss<<6) into register 0xF4
   // Request a pressure reading w/ oversampling setting
   Wire.beginTransmission(m_sensorAddress);
-  Wire.send(0xF4);
-  Wire.send(0x34 + (m_oss<<6));
+  Wire.write(0xF4);
+  Wire.write(0x34 + (m_oss<<6));
   Wire.endTransmission();
   
   // Wait for conversion, delay time dependent on OSS
@@ -121,16 +122,16 @@ unsigned long Bmp085::readRawPressure()
   
   // Read register 0xF6 (MSB), 0xF7 (LSB), and 0xF8 (XLSB)
   Wire.beginTransmission(m_sensorAddress);
-  Wire.send(0xF6);
+  Wire.write(0xF6);
   Wire.endTransmission();
   Wire.requestFrom(m_sensorAddress, 3);
   
   // Wait for data to become available
   while(Wire.available() < 3)
     ;
-  msb = Wire.receive();
-  lsb = Wire.receive();
-  xlsb = Wire.receive();
+  msb = Wire.read();
+  lsb = Wire.read();
+  xlsb = Wire.read();
   
   up = (((unsigned long) msb << 16) | ((unsigned long) lsb << 8) | (unsigned long) xlsb) >> (8-m_oss);
   
@@ -142,14 +143,14 @@ int Bmp085::readInt(unsigned char address)
   unsigned char msb, lsb;
   
   Wire.beginTransmission(m_sensorAddress);
-  Wire.send(address);
+  Wire.write(address);
   Wire.endTransmission();
   
   Wire.requestFrom(m_sensorAddress, 2);
   while(Wire.available()<2)
     ;
-  msb = Wire.receive();
-  lsb = Wire.receive();
+  msb = Wire.read();
+  lsb = Wire.read();
   
   return (int) msb<<8 | lsb;
 }

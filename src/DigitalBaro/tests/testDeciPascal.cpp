@@ -1,6 +1,6 @@
 #include "Bmp085.h"
 
-#include "WProgram.h"
+#include "Arduino.h"
 
 class TestPressure : public Bmp085
 {

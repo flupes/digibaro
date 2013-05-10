@@ -1,7 +1,7 @@
 #ifndef Ds3231_h
 #define Ds3231_h
 
-#include <wiring.h>
+#include <Arduino.h> // just for boolean... this is a shame!
 
 #include "Time.h"
 
