@@ -2,7 +2,7 @@
 #+AUTHOR: Lorenzo Fluckgier
 
 * Intro
- - This is a spin-off of the [[elec.org][weather station]].
+ - This is a new idea derived from the interrupted [[elec.org][weather station]].
  - The more accutely missing data in typical consumer weather station is
  atmospheric pressure: it is often not really accurate, and certainly lack
  of historical data. A quick search does not show there is much on the
