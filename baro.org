@@ -32,6 +32,13 @@
  - Graphical bar display
  - Excellent user manual
  - 1 day and 5 day history
+** [[http://www.nasamarine.com/proddetail.php?prod=MeteoMan][MeteoMan from NASA Instruments]]
+  - ~ 200 Euro
+  - Require 12V DC source!
+  - Huge display (150mmx112mm)
+  - Accept wind and temperature NEMA inputs
+  - record (display?) on 40h, 80h and 160h (~6.7day)
+  - installation manual, but no info on utilization
 * Size or data samples fitting on the 1K EEPROM
 ** Various solutions that did not made it
 *** First idea
