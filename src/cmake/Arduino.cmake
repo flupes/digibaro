@@ -11,7 +11,7 @@ elseif ( CMAKE_HOST_WIN32 )
 #  set(ARDUINO_ROOT "/cygdrive/c/Arduino22")
 # will not work since host is Unix in case of Cygwin
 elseif ( CMAKE_HOST_APPLE )
-  set(ARDUINO_ROOT "/Users/Shared/apps/Arduino.app/Contents/Resources/Java")
+  set(ARDUINO_ROOT "/Users/Shared/arduino/Arduino.app/Contents/Resources/Java")
 elseif ( CMAKE_HOST_UNIX )
   set(ARDUINO_ROOT "/usr/share/arduino")
 else ()
@@ -24,6 +24,10 @@ set(CORES_ARDUINO_DIR "hardware/arduino/cores/arduino")
 # Default relative location of the Arduino libraries
 set(ARDUINO_LIBS_DIR "libraries")
 
+# Path the the AVR toolchain
+set(AVR_TOOLCHAIN_DIR "hardware/tools/avr/bin")
+set(ARDUINO_AVR_BIN ${ARDUINO_ROOT}/${AVR_TOOLCHAIN_DIR})
+
 # Define the full paths
 set(corespath ${ARDUINO_ROOT}/${CORES_ARDUINO_DIR})
 #set(corespath ${CMAKE_SOURCE_DIR}/cores)
@@ -33,11 +37,12 @@ set(libspath ${ARDUINO_ROOT}/${ARDUINO_LIBS_DIR})
 include_directories( ${corespath} )
 
 # Define the Arduino IDE version
-set(ARDUINO_FLAG "-DARDUINO=104")
+set(ARDUINO_FLAG "-DARDUINO=106")
 
 # ============================================================
 # Compilation and linking definitions
 # ============================================================
+
 if(ARDUINO_IDE_MODE)
     set(WARNING_FLAGS "-w")
     set(C_FLAGS "")
@@ -52,7 +57,8 @@ endif()
 
 set(DEBUG_FLAG "-g")
 set(OPTI_FLAG "-Os")
-set(CXX_FLAGS "-fno-exceptions")
+# what to do with -MMD from the IDE?
+set(CXX_FLAGS "-fno-exceptions -DUSB_VID=null -DUSB_PID=null")
 set(AVR_FLAGS "-ffunction-sections -fdata-sections")
 set(LINKOPTS "-Wl,--gc-sections")
 
