@@ -13,7 +13,8 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_C_COMPILER avr-gcc)
 set(CMAKE_CXX_COMPILER avr-g++)
-set(CMAKE_RANLIB "echo \"do not run ranlib!\"")
+#set(CMAKE_RANLIB "echo \"do not run ranlib\"")
+set(CMAKE_RANLIB "toto")
 set(BUILD_SHARED_LIBS FALSE)
 
 
