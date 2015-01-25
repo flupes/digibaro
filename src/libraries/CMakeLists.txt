@@ -23,7 +23,7 @@ foreach(dir Time)
 endforeach(dir)
 add_library (time ${timelibsfiles})
 
-add_subdirectory ( Dogm )
+#add_subdirectory ( Dogm )
 
 #message(STATUS "libspath=${libspath}")
 #message(STATUS "libsfiles=${libsfiles}")
