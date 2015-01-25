@@ -13,8 +13,8 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 #set(ARDUINO_IDE_MODE TRUE)
 
 # Path to third-party libraries
-set(EXTERNAL_GIT_DIR /Volumes/MacNetDisk/ljfdev/git)
-set(EXTERNAL_PKG_DIR /Volumes/MacNetDisk/ljfdev/pkgs)
+set(EXTERNAL_GIT_DIR /Volumes/ljfdev/git)
+set(EXTERNAL_PKG_DIR /Volumes/ljfdev/pkgs)
 
 # Where to find the ST7565 by Adafruit
 set(ST7565_DIR ${EXTERNAL_GIT_DIR}/ST7565-LCD/ST7565)
