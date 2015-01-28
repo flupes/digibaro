@@ -8,18 +8,22 @@
 #define PERIOD 2
 
 #define BACKLIGHT_LED 3
-#define WAIT_LOOP 50
+#define WAIT_LOOP 1
 
 TimePermRingBuffer buffer(START_ADDR, BUFFER_SZ, sizeof(WeatherData), PERIOD);
 
 WeatherLcdGraph graph;
 
-ST7565 glcd(11, 13, 9, 6, 10);
+//ST7565 glcd(11, 13, 9, 6, 10);
 //ST7565 glcd(9, 8, 7, 6, 5);
+ST7565 glcd(11, 13, 8, 7, 14);
 
-long counter = 200;
+int interval = 10;
+unsigned long counter = 100;
+unsigned long time, prev_time;
 
 char timeStr[16];
+char periodStr[16];
 
 void setup()
 {
@@ -38,23 +42,32 @@ void setup()
   glcd.display(); 
   delay(100);
   glcd.clear();
+
+  time = millis();
+  prev_time = time;
 }
 
 void loop()
 {  
   float y = 1000.0 + 100.0*sin(counter/20.0)*cos(counter/100.0);
-  Serial.println(y, DEC);
+  //Serial.println(y, DEC);
   WeatherSample sample;
   sample.setPressure((uint16_t)y);
   buffer.insert(sample, counter);
   graph.draw(glcd);
   ltoa(counter, timeStr, 10);
+  if ( (counter % interval) == 0 ) {
+    time = millis();
+    ltoa( (time-prev_time)/interval, periodStr, 10);
+    glcd.drawstring(64, 1, periodStr);
+    prev_time = time;
+  }
   glcd.setpixel(0,0,1);
   glcd.setpixel(0,0,0);
   glcd.drawstring(8, 1, timeStr);
   glcd.display();
   counter++;
-  delay(WAIT_LOOP);
+  //delay(WAIT_LOOP);
 }
 
 int main(void)
