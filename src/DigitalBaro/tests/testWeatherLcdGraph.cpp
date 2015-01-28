@@ -1,7 +1,10 @@
+#include <Arduino.h>
+
+#include <math.h>
+
 #include "WeatherLcdGraph.h"
 #include "WeatherSample.h"
 
-#include "math.h"
 
 #define START_ADDR 0
 #define BUFFER_SZ 96
@@ -10,22 +13,21 @@
 #define BACKLIGHT_LED 3
 #define WAIT_LOOP 100
 
-#define USE_CLEAR 1
-
 TimePermRingBuffer buffer(START_ADDR, BUFFER_SZ, sizeof(WeatherData), PERIOD);
 
 WeatherLcdGraph graph;
 
 //ST7565 glcd(11, 13, 9, 6, 10);
 //ST7565 glcd(9, 8, 7, 6, 5);
-ST7565 glcd(11, 13, 8, 7, 14);
+//ST7565 glcd(11, 13, 8, 7, 14);
+
+U8GLIB_LM6059_2X glcd(14, 8, 7);
 
 int interval = 10;
 unsigned long counter = 100;
 unsigned long time, prev_time;
 
-char timeStr[34];
-char periodStr[18];
+int period = 0;
 
 void setup()
 {
@@ -33,20 +35,25 @@ void setup()
   graph.setBuffer(&buffer);
   Serial.begin(115200);
 
-  // initialize GLCD
-  glcd.begin(0x18);
-
   // turn on backlight
   pinMode(BACKLIGHT_LED, OUTPUT);
   digitalWrite(BACKLIGHT_LED, HIGH);
 
-  // show splashscreen
-  glcd.display(); 
-  delay(100);
-  glcd.clear();
-
   time = millis();
   prev_time = time;
+}
+
+void draw() {
+  graph.draw(glcd);
+
+  glcd.setPrintPos(8, 16);
+  glcd.print(counter);
+  //Serial.println(counter, DEC);
+
+  //Serial.println(period, DEC);
+  glcd.setPrintPos(64, 16);
+  glcd.print(period);
+
 }
 
 void loop()
@@ -58,26 +65,18 @@ void loop()
   sample.setPressure((uint16_t)y);
   buffer.insert(sample, counter);
 
-#ifdef USE_CLEAR
-  glcd.clear();
-#else
-  glcd.fillrect(0, 8, 128, 8, 0);
-#endif
-  
-  graph.draw(glcd);
-  
-  glcd.drawstring(8, 1, timeStr);
   if ( (counter % interval) == 0 ) {
     time = millis();
-    itoa( (int)(time-prev_time)/interval, periodStr, 10);
-    //Serial.println(periodStr);
+    period = (int)(time-prev_time)/interval;
     prev_time = time;
   }
-  ultoa(counter, timeStr, 10);
-  //Serial.println(timeStr);
-  glcd.drawstring(64, 1, periodStr);
 
-  glcd.display();
+  glcd.firstPage();  
+  do {
+    draw();
+  } 
+  while( glcd.nextPage() );
+
   counter++;
   //delay(WAIT_LOOP);
 }

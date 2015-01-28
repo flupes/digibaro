@@ -15,6 +15,13 @@ file(GLOB st7565libsfiles ${ST7565_DIR}/*.c ${ST7565_DIR}/*.cpp)
 include_directories( ${ST7565_DIR} )
 add_library (st7565 ${st7565libsfiles})
 
+set(u8glibfiles "")
+file(GLOB u8glibfiles ${U8GLIB_DIR}/utility/*.c ${U8GLIB_DIR}/*.cpp)
+include_directories( ${U8GLIB_DIR} )
+include_directories( ${U8GLIB_DIR}/utility )
+add_library (u8glib ${u8glibfiles})
+message(u8glibir=${U8GLIB_DIR})
+
 set(timelibfiles "")
 foreach(dir Time)
 	file(GLOB tmpfiles ./${dir}/*.c ./${dir}/*.cpp)

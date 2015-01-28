@@ -2,7 +2,7 @@
 #define WeatherLcdGraph_h
 
 #include "TimePermRingBuffer.h"
-#include "ST7565.h"
+#include "U8glib.h"
 
 class WeatherLcdGraph
 {
@@ -19,7 +19,7 @@ public:
   uint16_t getMinPressure(long *timestamp=0);
   uint16_t getMaxPressure(long *timestamp=0);
 
-  void draw(ST7565 &lcd);
+  void draw(U8GLIB &lcd);
 
   TimePermRingBuffer *getBuffer();
 
@@ -39,8 +39,8 @@ protected:
 
   TimePermRingBuffer *m_data;
 
-  uint8_t m_graphX;
-  uint8_t m_graphY;
+  u8g_uint_t m_graphX;
+  u8g_uint_t m_graphY;
 
 };
 

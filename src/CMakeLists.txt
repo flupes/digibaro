@@ -18,7 +18,9 @@ set(EXTERNAL_PKG_DIR /Volumes/ljfdev/pkgs)
 
 # Where to find the ST7565 by Adafruit
 set(ST7565_DIR ${EXTERNAL_GIT_DIR}/ST7565-LCD/ST7565)
-message(hereitis=${ST7565_DIR})
+#message(hereitis=${ST7565_DIR})
+
+set(U8GLIB_DIR /Volumes/ljfdev/arduino/libraries/U8glib)
 
 include( cmake/Arduino.cmake )
 
