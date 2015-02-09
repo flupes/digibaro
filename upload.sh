@@ -11,6 +11,8 @@ win32_avr_home="C:\Arduino22\hardware\tools\avr"
 # Arduino location under Mac OS-x
 darwin_avr_home="/Users/Shared/arduino/Arduino.app/Contents/Resources/Java/hardware/tools/avr"
 
+baudrate=57600
+
 uos=`uname`
 case $uos in
     Linux*)
@@ -69,4 +71,4 @@ build_core_flags=./cores/CMakeFiles/corearduino.dir/flags.make
 mmcu=`grep C_FLAGS ${build_core_flags} | sed -n 's/^.*-mmcu=\(.*\) -DF_CPU.*$/\1/p'`
 # | tr '[:lower:]' '[:upper:]' `
 
-avrdude -C ${avr_conf} ${options} -p atmega328p -c ${programmer} -P ${port} -b115200 -D -U flash:w:${hexfile}
+avrdude -C ${avr_conf} ${options} -p atmega328p -c ${programmer} -P ${port} -b ${baudrate} -D -U flash:w:${hexfile}
