@@ -10,8 +10,13 @@
 #define BUFFER_SZ 96
 #define PERIOD 2
 
-#define BACKLIGHT_LED 3
+#define BACKLIGHT_LED_RED 6
+#define BACKLIGHT_LED_GREEN 5
+#define BACKLIGHT_LED_BLUE 4
+
 #define WAIT_LOOP 100
+
+//#define USE_YELLOW 1
 
 TimePermRingBuffer buffer(START_ADDR, BUFFER_SZ, sizeof(WeatherData), PERIOD);
 
@@ -35,10 +40,21 @@ void setup()
   graph.setBuffer(&buffer);
   Serial.begin(115200);
 
+  glcd.setRot180();
+  glcd.setContrast(120);
+  
   // turn on backlight
-  pinMode(BACKLIGHT_LED, OUTPUT);
-  digitalWrite(BACKLIGHT_LED, HIGH);
-
+  pinMode(BACKLIGHT_LED_RED, OUTPUT);
+  pinMode(BACKLIGHT_LED_GREEN, OUTPUT);
+  pinMode(BACKLIGHT_LED_BLUE, OUTPUT);
+#ifdef USE_YELLOW
+  analogWrite(BACKLIGHT_LED_RED, 40);
+  analogWrite(BACKLIGHT_LED_GREEN, 160);
+  digitalWrite(BACKLIGHT_LED_BLUE, HIGH);
+#else
+  digitalWrite(BACKLIGHT_LED_BLUE, LOW);
+#endif
+  
   time = millis();
   prev_time = time;
 }
