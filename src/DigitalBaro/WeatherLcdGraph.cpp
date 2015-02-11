@@ -15,7 +15,8 @@ WeatherLcdGraph::WeatherLcdGraph() :
 void WeatherLcdGraph::setBuffer(TimePermRingBuffer *buf)
 {
   m_data = buf;
-  m_graphX = LCDWIDTH - m_data->bufferSize();
+  // TODO: fix the hardcoded value (however we do not know about the display yet...
+  m_graphX = 128 - m_data->bufferSize();
   findExtremas();
 }
 
@@ -68,6 +69,7 @@ void WeatherLcdGraph::findExtremas()
   }
 }
 
+#if 0
 void WeatherLcdGraph::draw(ST7565 &lcd)
 {
   uint16_t pressure, size;
@@ -107,5 +109,43 @@ void WeatherLcdGraph::draw(ST7565 &lcd)
     lcd.drawstring(0, GRAPH_LINE_OFFSET, str);
     utoa(m_minY, str, 10);
     lcd.drawstring(0, GRAPH_LINE_OFFSET+3, str);
+  }
+}
+#endif
+
+void WeatherLcdGraph::draw(U8GLIB  &lcd)
+{
+  uint16_t pressure, size;
+  long time;
+  u8g_uint_t x, y, j;
+  WeatherSample sample;
+  if ( m_data ) {
+    size = m_data->bufferSize();
+    //lcd.fillrect(m_graphX, m_graphY, m_graphX+size, m_graphY+GRAPH_Y_PIXELS, 0);
+    lcd.setColorIndex(1);
+    for (uint16_t i=0; i<size; i++) {
+      time = m_data->read(i, sample);
+      pressure = sample.getPressure();
+      if ( pressure != 0xFFFF && pressure > m_minY ) {
+        x = (uint8_t)(m_graphX+size-i-1);
+        y = (uint8_t)((pressure-m_minY)/m_scale);
+        if ( y > GRAPH_Y_PIXELS ) {
+          y = GRAPH_Y_PIXELS;
+        }
+        lcd.drawVLine(x, m_graphY+GRAPH_Y_PIXELS-y, y);
+      }
+    }
+    // horizontal axis
+    lcd.drawHLine(m_graphX, m_graphY+GRAPH_Y_PIXELS, lcd.getWidth()-m_graphX);
+    //vertical axis
+    lcd.drawVLine(m_graphX-1, m_graphY, GRAPH_Y_PIXELS);
+
+    // print Y scale
+//    lcd.setFont(u8g_font_helvR08n);
+    lcd.setFont(u8g_font_6x10);
+    lcd.setPrintPos(0, 3*8+8);
+    lcd.print(m_maxY);
+    lcd.setPrintPos(0, 6*8+8);
+    lcd.print(m_minY);
   }
 }
